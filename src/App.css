@@ -1,0 +1,9 @@
+.hero-band {
+  background: linear-gradient(135deg, #0a1f44 0%, #12305e 100%);
+  color: #ffffff;
+}
+
+.cta-band {
+  background: linear-gradient(135deg, #ffd100 0%, #ffe352 100%);
+  color: #0a1f44;
+}
