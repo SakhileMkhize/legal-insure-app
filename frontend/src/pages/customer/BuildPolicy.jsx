@@ -28,7 +28,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { CategoryIcon } from "../../components/common/CategoryIcon";
 import { COVER_CATEGORIES } from "../../data/coverCategories";
 import { formatDate } from "../../utils/formatDate";
-import * as policyService from "../../services/policyService";
+import { API_URL } from "../../../global";
 
 const STEP_LABELS = [
     "About You",
@@ -43,7 +43,6 @@ const RELATIONSHIPS = ["Spouse", "Child", "Other"];
 const EMPTY_DEPENDANT = { name: "", dateOfBirth: "", relationship: "" };
 
 export function BuildPolicy() {
-    const userId = localStorage.getItem("userId");
     const navigate = useNavigate();
     const [step, setStep] = useState(0);
     const [submitting, setSubmitting] = useState(false);
@@ -102,8 +101,22 @@ export function BuildPolicy() {
     const handleConfirm = () => {
         setSubmitError(null);
         setSubmitting(true);
-        policyService
-            .buildPolicy(userId, formData)
+        const token = localStorage.getItem("token");
+        fetch(`${API_URL}/policies/build`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(formData),
+        })
+            .then((response) =>
+                response
+                    .json()
+                    .then((data) =>
+                        response.ok ? data : Promise.reject(new Error(data.message)),
+                    ),
+            )
             .then(() => navigate("/dashboard"))
             .catch((err) => setSubmitError(err.message))
             .finally(() => setSubmitting(false));

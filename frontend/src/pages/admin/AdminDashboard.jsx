@@ -14,8 +14,7 @@ import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import { StatCard } from "../../components/common/StatCard";
 import { StatusChip } from "../../components/common/StatusChip";
-import * as adminService from "../../services/adminService";
-import * as claimService from "../../services/claimService";
+import { API_URL } from "../../../global";
 
 export function AdminDashboard() {
     const navigate = useNavigate();
@@ -26,10 +25,12 @@ export function AdminDashboard() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        const token = localStorage.getItem("token");
+        const headers = { Authorization: `Bearer ${token}` };
         Promise.all([
-            adminService.getBusinessMetrics(),
-            claimService.listAllClaims(),
-            adminService.listClients(),
+            fetch(`${API_URL}/admin/metrics`, { headers }).then((response) => response.json()),
+            fetch(`${API_URL}/claims/`, { headers }).then((response) => response.json()),
+            fetch(`${API_URL}/admin/clients`, { headers }).then((response) => response.json()),
         ])
             .then(([metricsData, claimsData, clientsData]) => {
                 setMetrics(metricsData);

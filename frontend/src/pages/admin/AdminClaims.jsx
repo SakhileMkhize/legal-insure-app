@@ -24,7 +24,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { StatusChip } from "../../components/common/StatusChip";
 import { formatDate } from "../../utils/formatDate";
-import * as claimService from "../../services/claimService";
+import { API_URL } from "../../../global";
 
 const TABS = [
     { value: "all", label: "All" },
@@ -44,8 +44,11 @@ export function AdminClaims() {
     const loadClaims = () => {
         setLoading(true);
         setError(null);
-        claimService
-            .listAllClaims()
+        const token = localStorage.getItem("token");
+        fetch(`${API_URL}/claims/`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((response) => response.json())
             .then(setClaims)
             .catch(() => setError("We couldn't load claims right now."))
             .finally(() => setLoading(false));
@@ -66,8 +69,16 @@ export function AdminClaims() {
 
     const handleDecision = (claimId, status) => {
         setActionError(null);
-        claimService
-            .updateClaimStatus(claimId, status)
+        const token = localStorage.getItem("token");
+        fetch(`${API_URL}/claims/${claimId}/status`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ status }),
+        })
+            .then((response) => response.json())
             .then(loadClaims)
             .catch(() =>
                 setActionError(

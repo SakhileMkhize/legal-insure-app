@@ -13,7 +13,7 @@ import Alert from "@mui/material/Alert";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import CircularProgress from "@mui/material/CircularProgress";
-import * as authService from "../../../services/authService";
+import { API_URL } from "../../../../global";
 
 const accountSetupSchema = yup.object({
     password: yup
@@ -51,11 +51,22 @@ export function SignupAccountSetup() {
         onSubmit: (values, { setSubmitting }) => {
             setSubmitError(null);
             const payload = { ...formData, password: values.password };
-            authService
-                .signup(payload)
-                .then((user) => {
-                    localStorage.setItem("userId", user.id);
-                    localStorage.setItem("role", user.role);
+            fetch(`${API_URL}/auth/signup`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            })
+                .then((response) =>
+                    response
+                        .json()
+                        .then((data) =>
+                            response.ok ? data : Promise.reject(new Error(data.message)),
+                        ),
+                )
+                .then((data) => {
+                    localStorage.setItem("token", data.token);
+                    localStorage.setItem("userId", data.id);
+                    localStorage.setItem("role", data.role);
                     updateFormData({ password: values.password });
                     navigate("/signup/confirmation");
                 })

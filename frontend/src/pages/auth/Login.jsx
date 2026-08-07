@@ -12,7 +12,7 @@ import Alert from "@mui/material/Alert";
 import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
-import * as authService from "../../services/authService";
+import { API_URL } from "../../../global";
 
 const loginSchema = yup.object({
     email: yup
@@ -33,13 +33,27 @@ export function Login() {
         validationSchema: loginSchema,
         onSubmit: (values, { setSubmitting }) => {
             setSubmitError(null);
-            authService
-                .login(values.email, values.password)
-                .then((user) => {
-                    localStorage.setItem("userId", user.id);
-                    localStorage.setItem("role", user.role);
+            fetch(`${API_URL}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: values.email,
+                    password: values.password,
+                }),
+            })
+                .then((response) =>
+                    response
+                        .json()
+                        .then((data) =>
+                            response.ok ? data : Promise.reject(new Error(data.message)),
+                        ),
+                )
+                .then((data) => {
+                    localStorage.setItem("token", data.token);
+                    localStorage.setItem("userId", data.id);
+                    localStorage.setItem("role", data.role);
                     const fallback =
-                        user.role === "admin" ? "/admin" : "/dashboard";
+                        data.role === "admin" ? "/admin" : "/dashboard";
                     navigate(location.state?.from?.pathname ?? fallback, {
                         replace: true,
                     });

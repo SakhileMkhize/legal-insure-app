@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useFormik } from "formik";
 import * as yup from "yup";
@@ -9,7 +9,6 @@ import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Avatar from "@mui/material/Avatar";
-import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -26,7 +25,7 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import { COVER_CATEGORIES } from "../../data/coverCategories";
 import { CategoryIcon } from "../../components/common/CategoryIcon";
 import { PlanCard } from "../../components/common/PlanCard";
-import * as policyService from "../../services/policyService";
+import { PLANS } from "../../data/mockPlans";
 import teamConsultationImg from "../../assets/team-consultation.jpg";
 import "../../App.css";
 
@@ -75,19 +74,8 @@ const TESTIMONIALS = [
 
 export function Home() {
     const navigate = useNavigate();
-    const [plans, setPlans] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [callDialogOpen, setCallDialogOpen] = useState(false);
     const [callRequestSent, setCallRequestSent] = useState(false);
-
-    useEffect(() => {
-        policyService
-            .listPlans()
-            .then(setPlans)
-            .catch(() => setError("We couldn't load our plans right now."))
-            .finally(() => setLoading(false));
-    }, []);
 
     const callRequestFormik = useFormik({
         initialValues: { name: "", phone: "" },
@@ -296,32 +284,18 @@ export function Home() {
                     Choose your plan
                 </Typography>
 
-                {loading && (
-                    <Box
-                        sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            py: 4,
-                        }}
-                    >
-                        <CircularProgress />
-                    </Box>
-                )}
-                {!loading && error && <Alert severity="error">{error}</Alert>}
-                {!loading && !error && (
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flexWrap: "wrap",
-                            gap: 3,
-                            justifyContent: "center",
-                        }}
-                    >
-                        {plans.map((plan) => (
-                            <PlanCard key={plan.id} plan={plan} compact />
-                        ))}
-                    </Box>
-                )}
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 3,
+                        justifyContent: "center",
+                    }}
+                >
+                    {PLANS.map((plan) => (
+                        <PlanCard key={plan.id} plan={plan} compact />
+                    ))}
+                </Box>
                 <Box sx={{ textAlign: "center", mt: 4 }}>
                     <Button variant="text" onClick={() => navigate("/plans")}>
                         Compare all plan features

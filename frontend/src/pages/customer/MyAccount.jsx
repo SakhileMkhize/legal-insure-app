@@ -13,8 +13,7 @@ import Alert from "@mui/material/Alert";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { PLANS } from "../../data/mockPlans";
 import { formatDate } from "../../utils/formatDate";
-import * as authService from "../../services/authService";
-import * as policyService from "../../services/policyService";
+import { API_URL } from "../../../global";
 
 export function MyAccount() {
     const userId = localStorage.getItem("userId");
@@ -25,9 +24,11 @@ export function MyAccount() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        const token = localStorage.getItem("token");
+        const headers = { Authorization: `Bearer ${token}` };
         Promise.all([
-            authService.getUserById(userId),
-            policyService.getPolicyForUser(userId),
+            fetch(`${API_URL}/auth/me`, { headers }).then((response) => response.json()),
+            fetch(`${API_URL}/policies/me`, { headers }).then((response) => response.json()),
         ])
             .then(([userData, policyData]) => {
                 setCurrentUser(userData);
@@ -42,6 +43,7 @@ export function MyAccount() {
     const handleLogout = () => {
         localStorage.removeItem("userId");
         localStorage.removeItem("role");
+        localStorage.removeItem("token");
         navigate("/login");
     };
 

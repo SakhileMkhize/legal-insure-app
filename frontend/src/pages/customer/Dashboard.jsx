@@ -19,10 +19,7 @@ import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import { StatusChip } from "../../components/common/StatusChip";
 import { PLANS } from "../../data/mockPlans";
 import { formatDate, formatDateTime } from "../../utils/formatDate";
-import * as authService from "../../services/authService";
-import * as policyService from "../../services/policyService";
-import * as claimService from "../../services/claimService";
-import * as consultationService from "../../services/consultationService";
+import { API_URL } from "../../../global";
 
 export function Dashboard() {
     const userId = localStorage.getItem("userId");
@@ -37,11 +34,13 @@ export function Dashboard() {
     useEffect(() => {
         setLoading(true);
         setError(null);
+        const token = localStorage.getItem("token");
+        const headers = { Authorization: `Bearer ${token}` };
         Promise.all([
-            authService.getUserById(userId),
-            policyService.getPolicyForUser(userId),
-            claimService.listClaims(userId),
-            consultationService.listConsultationsForUser(userId),
+            fetch(`${API_URL}/auth/me`, { headers }).then((response) => response.json()),
+            fetch(`${API_URL}/policies/me`, { headers }).then((response) => response.json()),
+            fetch(`${API_URL}/claims/me`, { headers }).then((response) => response.json()),
+            fetch(`${API_URL}/consultations/me`, { headers }).then((response) => response.json()),
         ])
             .then(([userData, policyData, claimsData, consultationsData]) => {
                 setCurrentUser(userData);

@@ -16,7 +16,7 @@ import SpaceDashboardIcon from "@mui/icons-material/SpaceDashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import GavelOutlinedIcon from "@mui/icons-material/GavelOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
-import * as authService from "../../services/authService";
+import { API_URL } from "../../../global";
 
 const NAV_PATHS = ["/admin", "/admin/clients", "/admin/claims"];
 
@@ -27,7 +27,12 @@ export function AdminNav() {
     const [anchorEl, setAnchorEl] = useState(null);
 
     useEffect(() => {
-        authService.getUserById(localStorage.getItem("userId")).then(setCurrentUser);
+        const token = localStorage.getItem("token");
+        fetch(`${API_URL}/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((response) => response.json())
+            .then(setCurrentUser);
     }, []);
 
     const navValue = NAV_PATHS.includes(location.pathname)
@@ -41,6 +46,7 @@ export function AdminNav() {
         setAnchorEl(null);
         localStorage.removeItem("userId");
         localStorage.removeItem("role");
+        localStorage.removeItem("token");
         navigate("/login");
     };
 

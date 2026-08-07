@@ -1,10 +1,7 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import CircularProgress from "@mui/material/CircularProgress";
-import Alert from "@mui/material/Alert";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -19,7 +16,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { PlanCard } from "../../components/common/PlanCard";
-import * as policyService from "../../services/policyService";
+import { PLANS } from "../../data/mockPlans";
 
 const COMPARISON_ROWS = [
     {
@@ -89,21 +86,6 @@ function ComparisonCell({ value }) {
 
 export function Plans() {
     const navigate = useNavigate();
-    const [plans, setPlans] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-        policyService
-            .listPlans()
-            .then(setPlans)
-            .catch(() =>
-                setError(
-                    "We couldn't load our plans right now. Please try again later.",
-                ),
-            )
-            .finally(() => setLoading(false));
-    }, []);
 
     return (
         <Container maxWidth="lg" sx={{ py: 8 }}>
@@ -124,32 +106,24 @@ export function Plans() {
                 </Typography>
             </Box>
 
-            {loading && (
-                <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-                    <CircularProgress />
-                </Box>
-            )}
-            {!loading && error && <Alert severity="error">{error}</Alert>}
-            {!loading && !error && (
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: 3,
-                        justifyContent: "center",
-                        mb: 8,
-                    }}
-                >
-                    {plans.map((plan) => (
-                        <PlanCard
-                            key={plan.id}
-                            plan={plan}
-                            onSelect={() => navigate(`/signup?plan=${plan.id}`)}
-                            actionLabel="Choose Plan"
-                        />
-                    ))}
-                </Box>
-            )}
+            <Box
+                sx={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 3,
+                    justifyContent: "center",
+                    mb: 8,
+                }}
+            >
+                {PLANS.map((plan) => (
+                    <PlanCard
+                        key={plan.id}
+                        plan={plan}
+                        onSelect={() => navigate(`/signup?plan=${plan.id}`)}
+                        actionLabel="Choose Plan"
+                    />
+                ))}
+            </Box>
 
             <Typography variant="h4" align="center" sx={{ mb: 3 }}>
                 Compare features

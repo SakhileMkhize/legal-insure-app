@@ -25,8 +25,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { StatusChip } from "../../components/common/StatusChip";
 import { COVER_CATEGORIES } from "../../data/coverCategories";
 import { formatDate } from "../../utils/formatDate";
-import * as claimService from "../../services/claimService";
-import * as policyService from "../../services/policyService";
+import { API_URL } from "../../../global";
 
 const claimSchema = yup.object({
     category: yup.string().required("Category is required"),
@@ -44,7 +43,6 @@ const claimSchema = yup.object({
 });
 
 export function Claims() {
-    const userId = localStorage.getItem("userId");
     const navigate = useNavigate();
     const [claims, setClaims] = useState([]);
     const [policy, setPolicy] = useState(null);
@@ -56,9 +54,11 @@ export function Claims() {
     const loadClaims = () => {
         setLoading(true);
         setError(null);
+        const token = localStorage.getItem("token");
+        const headers = { Authorization: `Bearer ${token}` };
         Promise.all([
-            claimService.listClaims(userId),
-            policyService.getPolicyForUser(userId),
+            fetch(`${API_URL}/claims/me`, { headers }).then((response) => response.json()),
+            fetch(`${API_URL}/policies/me`, { headers }).then((response) => response.json()),
         ])
             .then(([claimsData, policyData]) => {
                 setClaims(claimsData);
@@ -71,7 +71,7 @@ export function Claims() {
     useEffect(() => {
         loadClaims();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userId]);
+    }, []);
 
     const formik = useFormik({
         initialValues: {
@@ -83,12 +83,25 @@ export function Claims() {
         validationSchema: claimSchema,
         onSubmit: (values, { setSubmitting, resetForm }) => {
             setSubmitError(null);
-            claimService
-                .submitClaim({
+            const token = localStorage.getItem("token");
+            fetch(`${API_URL}/claims/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
                     ...values,
                     amountClaimed: Number(values.amountClaimed),
-                    userId,
-                })
+                }),
+            })
+                .then((response) =>
+                    response
+                        .json()
+                        .then((data) =>
+                            response.ok ? data : Promise.reject(new Error(data.message)),
+                        ),
+                )
                 .then(() => {
                     resetForm();
                     setDialogOpen(false);

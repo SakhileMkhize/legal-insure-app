@@ -20,8 +20,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { StatusChip } from "../../components/common/StatusChip";
 import { COVER_CATEGORIES } from "../../data/coverCategories";
 import { formatDateTime } from "../../utils/formatDate";
-import * as policyService from "../../services/policyService";
-import * as consultationService from "../../services/consultationService";
+import { API_URL } from "../../../global";
 
 const consultationSchema = yup.object({
     category: yup.string().required("Category is required"),
@@ -40,7 +39,6 @@ const LAWYERS = [
 ];
 
 export function Consultations() {
-    const userId = localStorage.getItem("userId");
     const navigate = useNavigate();
     const [consultations, setConsultations] = useState([]);
     const [policy, setPolicy] = useState(null);
@@ -52,9 +50,11 @@ export function Consultations() {
     const loadData = () => {
         setLoading(true);
         setError(null);
+        const token = localStorage.getItem("token");
+        const headers = { Authorization: `Bearer ${token}` };
         Promise.all([
-            consultationService.listConsultationsForUser(userId),
-            policyService.getPolicyForUser(userId),
+            fetch(`${API_URL}/consultations/me`, { headers }).then((response) => response.json()),
+            fetch(`${API_URL}/policies/me`, { headers }).then((response) => response.json()),
         ])
             .then(([consultationsData, policyData]) => {
                 setConsultations(consultationsData);
@@ -69,20 +69,33 @@ export function Consultations() {
     useEffect(() => {
         loadData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userId]);
+    }, []);
 
     const formik = useFormik({
         initialValues: { category: "", scheduledAt: "", notes: "" },
         validationSchema: consultationSchema,
         onSubmit: (values, { setSubmitting, resetForm }) => {
             setSubmitError(null);
-            consultationService
-                .bookConsultation({
+            const token = localStorage.getItem("token");
+            fetch(`${API_URL}/consultations/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
                     ...values,
-                    userId,
                     lawyerName:
                         LAWYERS[Math.floor(Math.random() * LAWYERS.length)],
-                })
+                }),
+            })
+                .then((response) =>
+                    response
+                        .json()
+                        .then((data) =>
+                            response.ok ? data : Promise.reject(new Error(data.message)),
+                        ),
+                )
                 .then(() => {
                     resetForm();
                     setDialogOpen(false);
@@ -314,7 +327,7 @@ export function Consultations() {
                                     formik.touched.scheduledAt &&
                                     formik.errors.scheduledAt
                                 }
-                                InputLabelProps={{ shrink: true }}
+                                slotProps={{ inputLabel: { shrink: true } }}
                                 fullWidth
                             />
                             <TextField

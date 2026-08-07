@@ -15,7 +15,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import DescriptionIcon from "@mui/icons-material/Description";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import LogoutIcon from "@mui/icons-material/Logout";
-import * as authService from "../../services/authService";
+import { API_URL } from "../../../global";
 
 const NAV_PATHS = ["/dashboard", "/claims", "/consultations"];
 
@@ -26,7 +26,12 @@ export function CustomerNav() {
     const [anchorEl, setAnchorEl] = useState(null);
 
     useEffect(() => {
-        authService.getUserById(localStorage.getItem("userId")).then(setCurrentUser);
+        const token = localStorage.getItem("token");
+        fetch(`${API_URL}/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((response) => response.json())
+            .then(setCurrentUser);
     }, []);
 
     const navValue = NAV_PATHS.includes(location.pathname)
@@ -40,6 +45,7 @@ export function CustomerNav() {
         setAnchorEl(null);
         localStorage.removeItem("userId");
         localStorage.removeItem("role");
+        localStorage.removeItem("token");
         navigate("/login");
     };
 

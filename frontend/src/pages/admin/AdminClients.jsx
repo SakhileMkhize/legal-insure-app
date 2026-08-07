@@ -22,7 +22,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
 import { StatusChip } from "../../components/common/StatusChip";
 import { formatDate } from "../../utils/formatDate";
-import * as adminService from "../../services/adminService";
+import { API_URL } from "../../../global";
 
 export function AdminClients() {
     const [clients, setClients] = useState([]);
@@ -34,8 +34,11 @@ export function AdminClients() {
     const [selectedClient, setSelectedClient] = useState(null);
 
     useEffect(() => {
-        adminService
-            .listClients()
+        const token = localStorage.getItem("token");
+        fetch(`${API_URL}/admin/clients`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((response) => response.json())
             .then(setClients)
             .catch(() => setError("We couldn't load clients right now."))
             .finally(() => setLoading(false));
