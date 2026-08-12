@@ -21,6 +21,8 @@ import { Dashboard } from "./pages/customer/Dashboard";
 import { BuildPolicy } from "./pages/customer/BuildPolicy";
 import { Claims } from "./pages/customer/Claims";
 import { Consultations } from "./pages/customer/Consultations";
+import { Partners } from "./pages/customer/Partners";
+import { PartnerDetail } from "./pages/customer/PartnerDetail";
 import { MyAccount } from "./pages/customer/MyAccount";
 
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
@@ -64,6 +66,11 @@ export default function App() {
                         <Route
                             path="/consultations"
                             element={<Consultations />}
+                        />
+                        <Route path="/partners" element={<Partners />} />
+                        <Route
+                            path="/partners/:practitionerId"
+                            element={<PartnerDetail />}
                         />
                         <Route path="/account" element={<MyAccount />} />
                     </Route>

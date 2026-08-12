@@ -1,30 +1,31 @@
-import { createTheme } from "@mui/material/styles";
+import { createTheme, alpha } from "@mui/material/styles";
 
-const NAVY = "#0A1F44";
-const NAVY_DARK = "#061530";
-const NAVY_LIGHT = "#1E3A66";
-const YELLOW = "#FFD100";
+const GRAY = "#52525B";
+const GRAY_DARK = "#3F3F46";
+const GRAY_LIGHT = "#A1A1AA";
+const BLUE = "#3B82F6";
 
 export const theme = createTheme({
     palette: {
         mode: "light",
         primary: {
-            main: NAVY,
-            dark: NAVY_DARK,
-            light: NAVY_LIGHT,
+            main: GRAY,
+            dark: GRAY_DARK,
+            light: GRAY_LIGHT,
             contrastText: "#FFFFFF",
         },
         secondary: {
-            main: YELLOW,
-            dark: "#E6BC00",
-            light: "#FFE352",
-            contrastText: NAVY,
+            main: BLUE,
+            dark: "#2563EB",
+            light: "#93C5FD",
+            contrastText: "#FFFFFF",
         },
-        background: { default: "#F7F8FA", paper: "#FFFFFF" },
+        background: { default: "#FAFAFA", paper: "#FFFFFF" },
         text: { primary: "#111827", secondary: "#4B5563" },
-        success: { main: "#1E7A67" },
+        success: { main: "#16A34A" },
         warning: { main: "#D97706" },
         error: { main: "#DC2626" },
+        info: { main: "#0EA5E9" },
     },
     typography: {
         fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
@@ -38,8 +39,7 @@ export const theme = createTheme({
     components: {
         MuiButton: {
             styleOverrides: {
-                root: { borderRadius: 10, paddingInline: 20 },
-                containedSecondary: { color: NAVY },
+                root: { borderRadius: 8, paddingInline: 20 },
             },
         },
         MuiAppBar: {
@@ -51,13 +51,36 @@ export const theme = createTheme({
             styleOverrides: {
                 root: {
                     borderRadius: 16,
-                    boxShadow: "0 4px 20px rgba(10,31,68,0.06)",
+                    boxShadow: "0 4px 20px rgba(63,63,70,0.06)",
                 },
             },
         },
         MuiChip: {
             styleOverrides: {
-                root: { fontWeight: 600 },
+                root: ({ ownerState, theme }) => {
+                    const base = {
+                        fontWeight: 600,
+                        borderRadius: 6,
+                    };
+
+                    const color = ownerState.color;
+                    if (
+                        ownerState.variant === "filled" &&
+                        color &&
+                        color !== "default" &&
+                        theme.palette[color]
+                    ) {
+                        const c = theme.palette[color];
+                        return {
+                            ...base,
+                            backgroundColor: alpha(c.main, 0.14),
+                            color: c.dark ?? c.main,
+                            border: `1px solid ${alpha(c.main, 0.3)}`,
+                        };
+                    }
+
+                    return base;
+                },
             },
         },
     },

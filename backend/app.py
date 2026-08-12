@@ -3,6 +3,7 @@ from routes.users_bp import users_bp
 from routes.policies_bp import policies_bp
 from routes.claims_bp import claims_bp
 from routes.consultations_bp import consultations_bp
+from routes.partners_bp import partners_bp
 from routes.admin_bp import admin_bp
 from config import Config
 from extensions import db, jwt
@@ -34,4 +35,5 @@ app.register_blueprint(users_bp, url_prefix="/api/auth/")
 app.register_blueprint(policies_bp, url_prefix="/api/policies/")
 app.register_blueprint(claims_bp, url_prefix="/api/claims/")
 app.register_blueprint(consultations_bp, url_prefix="/api/consultations/")
+app.register_blueprint(partners_bp, url_prefix="/api/partners/")
 app.register_blueprint(admin_bp, url_prefix="/api/admin/")

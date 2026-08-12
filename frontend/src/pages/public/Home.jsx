@@ -406,7 +406,7 @@ export function Home() {
                     <DialogContent>
                         {callRequestSent ? (
                             <Alert severity="success">
-                                Thanks — an advisor will call you back shortly.
+                                Thanks - an advisor will call you back shortly.
                             </Alert>
                         ) : (
                             <Stack spacing={2.5}>

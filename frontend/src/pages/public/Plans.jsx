@@ -2,60 +2,12 @@ import { useNavigate } from "react-router";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import RemoveCircleOutlineIcon from "@mui/icons-material/HighlightOff";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { PlanCard } from "../../components/common/PlanCard";
 import { PLANS } from "../../data/mockPlans";
-
-const COMPARISON_ROWS = [
-    {
-        label: "24/7 AI legal guidance",
-        basic: true,
-        premium: true,
-        ultimate: true,
-    },
-    {
-        label: "Legal document templates",
-        basic: true,
-        premium: true,
-        ultimate: true,
-    },
-    {
-        label: "Lawyer consultations",
-        basic: false,
-        premium: "2 / month",
-        ultimate: "Unlimited",
-    },
-    {
-        label: "Contract review by an attorney",
-        basic: false,
-        premium: true,
-        ultimate: true,
-    },
-    {
-        label: "Legal expense cover",
-        basic: false,
-        premium: false,
-        ultimate: "Up to R500,000",
-    },
-    {
-        label: "Court representation support",
-        basic: false,
-        premium: false,
-        ultimate: true,
-    },
-];
 
 const FAQS = [
     {
@@ -75,14 +27,6 @@ const FAQS = [
         answer: "Any South African resident over the age of 18 can sign up as an individual. Business and employer group plans are available on request.",
     },
 ];
-
-function ComparisonCell({ value }) {
-    if (value === true)
-        return <CheckCircleIcon color="success" fontSize="small" />;
-    if (value === false)
-        return <RemoveCircleOutlineIcon color="disabled" fontSize="small" />;
-    return <Typography variant="body2">{value}</Typography>;
-}
 
 export function Plans() {
     const navigate = useNavigate();
@@ -124,46 +68,6 @@ export function Plans() {
                     />
                 ))}
             </Box>
-
-            <Typography variant="h4" align="center" sx={{ mb: 3 }}>
-                Compare features
-            </Typography>
-            <TableContainer component={Paper} variant="outlined" sx={{ mb: 8 }}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell sx={{ fontWeight: 700 }}>
-                                Feature
-                            </TableCell>
-                            <TableCell align="center" sx={{ fontWeight: 700 }}>
-                                Basic
-                            </TableCell>
-                            <TableCell align="center" sx={{ fontWeight: 700 }}>
-                                Premium
-                            </TableCell>
-                            <TableCell align="center" sx={{ fontWeight: 700 }}>
-                                Ultimate
-                            </TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {COMPARISON_ROWS.map((row) => (
-                            <TableRow key={row.label}>
-                                <TableCell>{row.label}</TableCell>
-                                <TableCell align="center">
-                                    <ComparisonCell value={row.basic} />
-                                </TableCell>
-                                <TableCell align="center">
-                                    <ComparisonCell value={row.premium} />
-                                </TableCell>
-                                <TableCell align="center">
-                                    <ComparisonCell value={row.ultimate} />
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
 
             <Typography variant="h4" align="center" sx={{ mb: 3 }}>
                 Frequently asked questions

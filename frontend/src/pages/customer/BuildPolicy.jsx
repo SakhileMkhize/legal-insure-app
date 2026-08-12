@@ -192,7 +192,7 @@ export function BuildPolicy() {
                                     variant="body2"
                                     color="text.secondary"
                                 >
-                                    Optional — add a spouse or children you'd
+                                    Optional - add a spouse or children you'd
                                     like covered under your policy.
                                 </Typography>
                             </Box>
@@ -225,7 +225,7 @@ export function BuildPolicy() {
                                                 variant="body2"
                                                 sx={{ fontWeight: 600 }}
                                             >
-                                                {dependant.name} —{" "}
+                                                {dependant.name} -{" "}
                                                 {dependant.relationship}
                                             </Typography>
                                             <Typography
@@ -501,8 +501,8 @@ export function BuildPolicy() {
                                     {formData.dependants.length === 0
                                         ? "None added."
                                         : formData.dependants
-                                              .map((d) => d.name)
-                                              .join(", ")}
+                                            .map((d) => d.name)
+                                            .join(", ")}
                                 </Typography>
                             </Box>
 

@@ -21,6 +21,9 @@ instance
 .env.local
 .pytest_cache
 
+# Uploaded claim evidence (local disk storage — not committed)
+backend/uploads/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

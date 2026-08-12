@@ -4,7 +4,7 @@ import Container from "@mui/material/Container";
 import { CustomerNav } from "./CustomerNav";
 import { AdminNav } from "./AdminNav";
 
-// Safe to assume "role" is set here — ProtectedRoute above this layout in
+// Safe to assume "role" is set here - ProtectedRoute above this layout in
 // the route tree already redirected anonymous visitors to /login.
 export function AppLayout() {
     const role = localStorage.getItem("role");

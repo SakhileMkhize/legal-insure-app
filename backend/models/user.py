@@ -18,6 +18,10 @@ class User(Base):
     id_number = Column(String(20))
     address = Column(String(255))
     joined_at = Column(Date)
+    employer_name = Column(String(150))
+    occupation = Column(String(100))
+    employment_status = Column(String(20))
+    marital_status = Column(String(20))
 
     def to_dict(self):
         return {
@@ -31,4 +35,8 @@ class User(Base):
             "idNumber": self.id_number,
             "address": self.address,
             "joinedAt": self.joined_at.isoformat() if self.joined_at else None,
+            "employerName": self.employer_name,
+            "occupation": self.occupation,
+            "employmentStatus": self.employment_status,
+            "maritalStatus": self.marital_status,
         }

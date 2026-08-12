@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import Divider from "@mui/material/Divider";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Tabs from "@mui/material/Tabs";
@@ -22,8 +23,11 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import DownloadIcon from "@mui/icons-material/Download";
 import { StatusChip } from "../../components/common/StatusChip";
 import { formatDate } from "../../utils/formatDate";
+import { downloadAuthenticatedFile } from "../../utils/downloadFile";
 import { API_URL } from "../../../global";
 
 const TABS = [
@@ -40,6 +44,8 @@ export function AdminClaims() {
     const [tab, setTab] = useState("all");
     const [selectedClaim, setSelectedClaim] = useState(null);
     const [actionError, setActionError] = useState(null);
+    const [selectedClaimDocuments, setSelectedClaimDocuments] = useState([]);
+    const [documentsLoading, setDocumentsLoading] = useState(false);
 
     const loadClaims = () => {
         setLoading(true);
@@ -57,6 +63,23 @@ export function AdminClaims() {
     useEffect(() => {
         loadClaims();
     }, []);
+
+    useEffect(() => {
+        if (!selectedClaim) {
+            setSelectedClaimDocuments([]);
+            return;
+        }
+
+        setDocumentsLoading(true);
+        const token = localStorage.getItem("token");
+        fetch(`${API_URL}/claims/${selectedClaim.id}/documents`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((response) => response.json())
+            .then(setSelectedClaimDocuments)
+            .catch(() => setSelectedClaimDocuments([]))
+            .finally(() => setDocumentsLoading(false));
+    }, [selectedClaim]);
 
     const filteredClaims = useMemo(() => {
         if (tab === "all") return claims;
@@ -298,6 +321,63 @@ export function AdminClaims() {
                                 <Typography variant="body2">
                                     {selectedClaim.description}
                                 </Typography>
+
+                                <Divider sx={{ my: 0.5 }} />
+
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{ fontWeight: 700, letterSpacing: 0.5 }}
+                                >
+                                    EVIDENCE
+                                </Typography>
+
+                                {documentsLoading && (
+                                    <CircularProgress size={16} />
+                                )}
+                                {!documentsLoading &&
+                                    selectedClaimDocuments.length === 0 && (
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                        >
+                                            No documents attached to this
+                                            claim.
+                                        </Typography>
+                                    )}
+                                <Stack spacing={0.5}>
+                                    {selectedClaimDocuments.map((doc) => (
+                                        <Stack
+                                            key={doc.id}
+                                            direction="row"
+                                            spacing={1}
+                                            sx={{ alignItems: "center" }}
+                                        >
+                                            <InsertDriveFileIcon
+                                                fontSize="small"
+                                                color="action"
+                                            />
+                                            <Typography
+                                                variant="body2"
+                                                sx={{ flex: 1 }}
+                                                noWrap
+                                            >
+                                                {doc.fileName}
+                                            </Typography>
+                                            <IconButton
+                                                size="small"
+                                                onClick={() =>
+                                                    downloadAuthenticatedFile(
+                                                        `${API_URL}/claims/documents/${doc.id}/download`,
+                                                        doc.fileName,
+                                                    )
+                                                }
+                                            >
+                                                <DownloadIcon fontSize="small" />
+                                            </IconButton>
+                                        </Stack>
+                                    ))}
+                                </Stack>
                             </Stack>
                         </DialogContent>
                         <DialogActions>

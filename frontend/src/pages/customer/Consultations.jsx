@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import Box from "@mui/material/Box";
@@ -24,7 +24,7 @@ import { API_URL } from "../../../global";
 
 const consultationSchema = yup.object({
     category: yup.string().required("Category is required"),
-    lawyerCategoryNotes: yup.string().notRequired(),
+    practitionerId: yup.string().required("Please choose an attorney"),
     scheduledAt: yup.string().required("Please choose a date and time"),
     notes: yup
         .string()
@@ -32,20 +32,17 @@ const consultationSchema = yup.object({
         .required("Let us know what you'd like to discuss"),
 });
 
-const LAWYERS = [
-    "Adv. Kabelo Ntuli",
-    "Adv. Refilwe Maseko",
-    "Adv. Zanele Cele",
-];
-
 export function Consultations() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [consultations, setConsultations] = useState([]);
     const [policy, setPolicy] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [submitError, setSubmitError] = useState(null);
+    const [practitioners, setPractitioners] = useState([]);
+    const [practitionersLoading, setPractitionersLoading] = useState(false);
 
     const loadData = () => {
         setLoading(true);
@@ -71,8 +68,29 @@ export function Consultations() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    const loadPractitioners = (category) => {
+        if (!category) {
+            setPractitioners([]);
+            return;
+        }
+        setPractitionersLoading(true);
+        const token = localStorage.getItem("token");
+        fetch(`${API_URL}/partners/?category=${category}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((response) => response.json())
+            .then((data) => setPractitioners(Array.isArray(data) ? data : []))
+            .catch(() => setPractitioners([]))
+            .finally(() => setPractitionersLoading(false));
+    };
+
     const formik = useFormik({
-        initialValues: { category: "", scheduledAt: "", notes: "" },
+        initialValues: {
+            category: "",
+            practitionerId: searchParams.get("practitioner") || "",
+            scheduledAt: "",
+            notes: "",
+        },
         validationSchema: consultationSchema,
         onSubmit: (values, { setSubmitting, resetForm }) => {
             setSubmitError(null);
@@ -83,11 +101,7 @@ export function Consultations() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({
-                    ...values,
-                    lawyerName:
-                        LAWYERS[Math.floor(Math.random() * LAWYERS.length)],
-                }),
+                body: JSON.stringify(values),
             })
                 .then((response) =>
                     response
@@ -105,6 +119,40 @@ export function Consultations() {
                 .finally(() => setSubmitting(false));
         },
     });
+
+    // Arriving from a partner's profile with a preferred attorney already
+    // chosen (?practitioner=pr1) opens straight into the booking dialog,
+    // prefilled with that attorney's category so the dropdown isn't left
+    // pointing at a practitioner that isn't in its (empty) option list.
+    useEffect(() => {
+        const practitionerId = searchParams.get("practitioner");
+        if (!practitionerId) return;
+
+        setDialogOpen(true);
+        const token = localStorage.getItem("token");
+        fetch(`${API_URL}/partners/${practitionerId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((response) => (response.ok ? response.json() : null))
+            .then((partner) => {
+                if (!partner) return;
+                const category = partner.categories?.[0];
+                if (category) {
+                    formik.setFieldValue("category", category);
+                    loadPractitioners(category);
+                }
+                formik.setFieldValue("practitionerId", partner.id);
+            })
+            .catch(() => {});
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const handleCategoryChange = (event) => {
+        const category = event.target.value;
+        formik.setFieldValue("category", category);
+        formik.setFieldValue("practitionerId", "");
+        loadPractitioners(category);
+    };
 
     const canBook =
         policy &&
@@ -291,7 +339,7 @@ export function Consultations() {
                                 label="Category"
                                 name="category"
                                 value={formik.values.category}
-                                onChange={formik.handleChange}
+                                onChange={handleCategoryChange}
                                 onBlur={formik.handleBlur}
                                 error={
                                     formik.touched.category &&
@@ -309,6 +357,43 @@ export function Consultations() {
                                         value={category.id}
                                     >
                                         {category.label}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                            <TextField
+                                select
+                                label="Preferred Attorney"
+                                name="practitionerId"
+                                value={formik.values.practitionerId}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                error={
+                                    formik.touched.practitionerId &&
+                                    Boolean(formik.errors.practitionerId)
+                                }
+                                helperText={
+                                    (formik.touched.practitionerId &&
+                                        formik.errors.practitionerId) ||
+                                    (!formik.values.category
+                                        ? "Choose a category first"
+                                        : practitioners.length === 0 &&
+                                            !practitionersLoading
+                                          ? "No attorneys cover this category yet"
+                                          : "")
+                                }
+                                disabled={
+                                    !formik.values.category ||
+                                    practitionersLoading
+                                }
+                                fullWidth
+                            >
+                                {practitioners.map((practitioner) => (
+                                    <MenuItem
+                                        key={practitioner.id}
+                                        value={practitioner.id}
+                                    >
+                                        {practitioner.displayName} —{" "}
+                                        {practitioner.firm?.name}
                                     </MenuItem>
                                 ))}
                             </TextField>

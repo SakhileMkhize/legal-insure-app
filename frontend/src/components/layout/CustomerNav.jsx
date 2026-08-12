@@ -14,10 +14,11 @@ import GavelIcon from "@mui/icons-material/Gavel";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import DescriptionIcon from "@mui/icons-material/Description";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import BalanceIcon from "@mui/icons-material/Balance";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { API_URL } from "../../../global";
 
-const NAV_PATHS = ["/dashboard", "/claims", "/consultations"];
+const NAV_PATHS = ["/dashboard", "/claims", "/consultations", "/partners"];
 
 export function CustomerNav() {
     const [currentUser, setCurrentUser] = useState(null);
@@ -120,6 +121,12 @@ export function CustomerNav() {
                         iconPosition="start"
                         label="Consultations"
                         value="/consultations"
+                    />
+                    <Tab
+                        icon={<BalanceIcon />}
+                        iconPosition="start"
+                        label="Attorneys"
+                        value="/partners"
                     />
                 </Tabs>
 
