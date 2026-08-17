@@ -52,7 +52,7 @@ export function AdminNav() {
 
     return (
         <AppBar position="sticky" sx={{ bgcolor: "primary.main" }}>
-            <Toolbar sx={{ maxWidth: 1200, width: "100%", mx: "auto", gap: 2 }}>
+            <Toolbar sx={{ maxWidth: 1536, width: "100%", mx: "auto", gap: 2 }}>
                 <Box
                     sx={{
                         display: "flex",

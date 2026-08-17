@@ -17,6 +17,7 @@ import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import "../../App.css";
 
+// Static "what we stand for" cards.
 const VALUES = [
     {
         icon: <VerifiedIcon />,
@@ -153,6 +154,8 @@ export function About() {
                 </Container>
             </Box>
 
+            {/* Marketing headline figures — hardcoded copy, not fetched
+                from any real usage data. */}
             <Container maxWidth="lg" sx={{ py: 8 }}>
                 <Box
                     sx={{

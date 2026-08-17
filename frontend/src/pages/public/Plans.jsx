@@ -9,6 +9,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { PlanCard } from "../../components/common/PlanCard";
 import { PLANS } from "../../data/mockPlans";
 
+// Static FAQ content for the accordion below.
 const FAQS = [
     {
         question: "How does the claims process work?",
@@ -50,6 +51,9 @@ export function Plans() {
                 </Typography>
             </Box>
 
+            {/* Full-size plan cards — selecting one sends the plan id
+                along as a query param, picked up by SignupPlanSelection
+                to preselect it in the signup wizard. */}
             <Box
                 sx={{
                     display: "flex",
@@ -72,6 +76,8 @@ export function Plans() {
             <Typography variant="h4" align="center" sx={{ mb: 3 }}>
                 Frequently asked questions
             </Typography>
+            {/* Collapsible FAQ list — one Accordion per question, all
+                independently expandable. */}
             <Box sx={{ maxWidth: 760, mx: "auto" }}>
                 {FAQS.map((faq) => (
                     <Accordion key={faq.question} variant="outlined">

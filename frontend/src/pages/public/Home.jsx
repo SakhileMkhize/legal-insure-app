@@ -29,11 +29,14 @@ import { PLANS } from "../../data/mockPlans";
 import teamConsultationImg from "../../assets/team-consultation.jpg";
 import "../../App.css";
 
+// Validation for the "Request a Call" dialog form.
 const callRequestSchema = yup.object({
     name: yup.string().trim().required("Name is required"),
     phone: yup.string().trim().required("Phone number is required"),
 });
 
+// Static marketing content for the page's card grids — none of this is
+// fetched, since it's the same for every visitor.
 const VALUE_PROPS = [
     {
         icon: <GavelIcon />,
@@ -77,6 +80,8 @@ export function Home() {
     const [callDialogOpen, setCallDialogOpen] = useState(false);
     const [callRequestSent, setCallRequestSent] = useState(false);
 
+    // No backend endpoint exists for call requests yet — submitting just
+    // flips the dialog to a "thanks" confirmation state locally.
     const callRequestFormik = useFormik({
         initialValues: { name: "", phone: "" },
         validationSchema: callRequestSchema,
@@ -93,6 +98,7 @@ export function Home() {
 
     return (
         <Box>
+            {/* Hero band — headline, CTA buttons, and a hero image. */}
             <Box className="hero-band" sx={{ py: { xs: 8, md: 12 } }}>
                 <Container maxWidth="lg">
                     <Box
@@ -171,6 +177,8 @@ export function Home() {
                 </Container>
             </Box>
 
+            {/* Value props — four short reasons to sign up, from
+                VALUE_PROPS above. */}
             <Container maxWidth="lg" sx={{ py: 8 }}>
                 <Typography variant="h4" align="center" sx={{ mb: 1 }}>
                     Why legal cover matters
@@ -235,6 +243,9 @@ export function Home() {
                     borderColor: "divider",
                 }}
             >
+                {/* Cover categories — reuses the same COVER_CATEGORIES
+                    list used for claim/consultation category pickers
+                    elsewhere in the app. */}
                 <Container maxWidth="lg">
                     <Typography variant="h4" align="center" sx={{ mb: 5 }}>
                         Cover across every dispute category
@@ -279,6 +290,8 @@ export function Home() {
                 </Container>
             </Box>
 
+            {/* Plan cards, in "compact" mode — the full comparison lives
+                on the dedicated Plans page linked below the grid. */}
             <Container maxWidth="lg" sx={{ py: 8 }}>
                 <Typography variant="h4" align="center" sx={{ mb: 5 }}>
                     Choose your plan
@@ -311,6 +324,7 @@ export function Home() {
                     borderColor: "divider",
                 }}
             >
+                {/* Testimonials — static quotes, from TESTIMONIALS above. */}
                 <Container maxWidth="lg">
                     <Typography variant="h4" align="center" sx={{ mb: 5 }}>
                         Trusted by our members
@@ -350,6 +364,8 @@ export function Home() {
                 </Container>
             </Box>
 
+            {/* "Prefer to talk?" prompt — opens the Request a Call dialog
+                further down. */}
             <Container maxWidth="sm" sx={{ py: 8, textAlign: "center" }}>
                 <Avatar
                     sx={{
@@ -381,6 +397,7 @@ export function Home() {
                 </Button>
             </Container>
 
+            {/* Closing call-to-action banner. */}
             <Box className="cta-band" sx={{ py: 8 }}>
                 <Container maxWidth="lg" sx={{ textAlign: "center" }}>
                     <Typography variant="h4" sx={{ mb: 2 }}>
@@ -400,6 +417,8 @@ export function Home() {
                 </Container>
             </Box>
 
+            {/* Request a Call dialog — swaps its content for a thank-you
+                message once submitted, rather than closing immediately. */}
             <Dialog open={callDialogOpen} onClose={closeCallDialog} fullWidth maxWidth="xs">
                 <DialogTitle>Request a Call</DialogTitle>
                 <Box component="form" onSubmit={callRequestFormik.handleSubmit} noValidate>

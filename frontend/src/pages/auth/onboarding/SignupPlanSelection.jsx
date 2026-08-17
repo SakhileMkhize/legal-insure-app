@@ -11,10 +11,15 @@ export function SignupPlanSelection() {
     const { formData, updateFormData } = useOutletContext();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    // Preselects a plan from either the previous step's answer or a
+    // ?plan= query param (arriving here from the marketing Plans page).
     const [selectedPlanId, setSelectedPlanId] = useState(
         formData.planId || searchParams.get("plan") || "",
     );
 
+    // Guards against landing on this step directly (e.g. a bookmarked
+    // URL) without having filled in step 1 first — formData.email being
+    // empty means the wizard hasn't actually been started.
     useEffect(() => {
         if (!formData.email) {
             navigate("/signup/details", { replace: true });

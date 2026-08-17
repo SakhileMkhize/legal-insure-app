@@ -15,7 +15,10 @@ import Alert from "@mui/material/Alert";
 import { COVER_CATEGORIES } from "../../data/coverCategories";
 import { CATEGORY_MAP } from "../../utils/categoryMap";
 import { API_URL } from "../../../global";
+import attorneysImg from "../../assets/attorneys.jpg";
 
+// Turns a full name into a two-letter avatar initial (e.g. "Kabelo Ntuli"
+// -> "KN"), used since no photo/logo is stored for practitioners.
 function initialsOf(name) {
     return name
         .split(" ")
@@ -32,6 +35,8 @@ export function Partners() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // Refetches whenever the specialization filter changes — an empty
+    // category means "all specializations", so no query string is sent.
     useEffect(() => {
         setLoading(true);
         setError(null);
@@ -50,28 +55,91 @@ export function Partners() {
 
     return (
         <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                Find an Attorney
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                The law firms and practitioners LegalInsure works with —
-                compare specializations before you book a consultation.
-            </Typography>
-
-            <TextField
-                select
-                label="Filter by specialization"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                sx={{ mb: 3, minWidth: 260 }}
+            {/* Hero banner: the photo renders at its full natural size
+                (no crop), darkened via a brightness filter so the white
+                title/subtitle/filter overlaid on top of it stay legible. */}
+            <Box
+                sx={{
+                    position: "relative",
+                    borderRadius: 3,
+                    overflow: "hidden",
+                    mb: 4,
+                }}
             >
-                <MenuItem value="">All specializations</MenuItem>
-                {COVER_CATEGORIES.map((c) => (
-                    <MenuItem key={c.id} value={c.id}>
-                        {c.label}
-                    </MenuItem>
-                ))}
-            </TextField>
+                <Box
+                    component="img"
+                    src={attorneysImg}
+                    alt="Attorneys from LegalInsure's partner network"
+                    sx={{
+                        width: "100%",
+                        height: "auto",
+                        display: "block",
+                        filter: "brightness(0.45)",
+                    }}
+                />
+                <Box
+                    sx={{
+                        position: "absolute",
+                        inset: 0,
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        p: { xs: 3, md: 5 },
+                    }}
+                >
+                    <Typography
+                        variant="h4"
+                        sx={{ fontWeight: 700, mb: 0.5, color: "#fff" }}
+                    >
+                        Find an Attorney
+                    </Typography>
+                    <Typography
+                        variant="body1"
+                        sx={{ mb: 3, color: "rgba(255,255,255,0.85)" }}
+                    >
+                        The law firms and practitioners LegalInsure works
+                        with — compare specializations before you book a
+                        consultation.
+                    </Typography>
+
+                    <TextField
+                        select
+                        label="Filter by specialization"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        sx={{
+                            minWidth: 260,
+                            alignSelf: "flex-start",
+                            "& .MuiInputLabel-root": {
+                                color: "rgba(255,255,255,0.85)",
+                            },
+                            "& .MuiInputLabel-root.Mui-focused": {
+                                color: "#fff",
+                            },
+                            "& .MuiOutlinedInput-root": {
+                                color: "#fff",
+                                "& fieldset": {
+                                    borderColor: "rgba(255,255,255,0.5)",
+                                },
+                                "&:hover fieldset": {
+                                    borderColor: "rgba(255,255,255,0.8)",
+                                },
+                                "&.Mui-focused fieldset": {
+                                    borderColor: "#fff",
+                                },
+                            },
+                            "& .MuiSvgIcon-root": { color: "#fff" },
+                        }}
+                    >
+                        <MenuItem value="">All specializations</MenuItem>
+                        {COVER_CATEGORIES.map((c) => (
+                            <MenuItem key={c.id} value={c.id}>
+                                {c.label}
+                            </MenuItem>
+                        ))}
+                    </TextField>
+                </Box>
+            </Box>
 
             {loading && (
                 <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
@@ -85,6 +153,8 @@ export function Partners() {
                 </Alert>
             )}
 
+            {/* Card grid, 1/2/3 columns depending on viewport width —
+                each card links through to that attorney's detail page. */}
             {!loading && !error && partners.length > 0 && (
                 <Box
                     sx={{
@@ -98,8 +168,22 @@ export function Partners() {
                     }}
                 >
                     {partners.map((partner) => (
-                        <Card key={partner.id} variant="outlined">
-                            <CardContent>
+                        <Card
+                            key={partner.id}
+                            variant="outlined"
+                            sx={{
+                                height: "100%",
+                                display: "flex",
+                                flexDirection: "column",
+                            }}
+                        >
+                            <CardContent
+                                sx={{
+                                    flexGrow: 1,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                }}
+                            >
                                 <Stack
                                     direction="row"
                                     spacing={2}
@@ -147,6 +231,10 @@ export function Partners() {
                                         />
                                     ))}
                                 </Stack>
+                                {/* Clamped to 3 lines so a long bio doesn't
+                                    stretch card heights unevenly across
+                                    the grid; the full bio is on the
+                                    detail page. */}
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"
@@ -164,6 +252,7 @@ export function Partners() {
                                     variant="outlined"
                                     size="small"
                                     fullWidth
+                                    sx={{ mt: "auto" }}
                                     onClick={() =>
                                         navigate(`/partners/${partner.id}`)
                                     }

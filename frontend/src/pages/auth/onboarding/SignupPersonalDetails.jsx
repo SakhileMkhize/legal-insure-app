@@ -10,6 +10,7 @@ import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
 
+// Validation rules for step 1 of signup.
 const personalDetailsSchema = yup.object({
     firstName: yup.string().trim().required("First name is required"),
     lastName: yup.string().trim().required("Last name is required"),
@@ -22,6 +23,9 @@ const personalDetailsSchema = yup.object({
 });
 
 export function SignupPersonalDetails() {
+    // formData/updateFormData come from the Onboarding layout route via
+    // Outlet context — this step reads its slice of the shared object and
+    // writes back into the same object, rather than owning its own state.
     const { formData, updateFormData } = useOutletContext();
     const navigate = useNavigate();
 
@@ -34,6 +38,8 @@ export function SignupPersonalDetails() {
         },
         validationSchema: personalDetailsSchema,
         onSubmit: (values) => {
+            // No API call here — these fields aren't submitted until the
+            // final "Create Account" step, after a plan is chosen.
             updateFormData(values);
             navigate("/signup/plan");
         },

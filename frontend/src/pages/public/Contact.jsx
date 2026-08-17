@@ -15,6 +15,7 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
+// Validation for the contact form fields.
 const contactSchema = yup.object({
     name: yup.string().trim().required("Name is required"),
     email: yup
@@ -33,6 +34,9 @@ const contactSchema = yup.object({
 export function Contact() {
     const [sent, setSent] = useState(false);
 
+    // As with the Home page's call-request form, there's no backend
+    // endpoint behind this yet — submitting just shows a success banner
+    // and clears the form locally.
     const formik = useFormik({
         initialValues: { name: "", email: "", subject: "", message: "" },
         validationSchema: contactSchema,
@@ -61,6 +65,8 @@ export function Contact() {
                 </Typography>
             </Box>
 
+            {/* Contact form (left) and static contact-details/map card
+                (right). */}
             <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                 <Card variant="outlined" sx={{ flex: "2 1 420px" }}>
                     <CardContent>
@@ -214,6 +220,8 @@ export function Contact() {
                             </Stack>
                         </CardContent>
                     </Card>
+                    {/* Stands in for an embedded map — no map integration
+                        wired up. */}
                     <Box
                         sx={{
                             flexGrow: 1,

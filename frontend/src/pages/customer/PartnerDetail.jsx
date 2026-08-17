@@ -18,6 +18,8 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import { CATEGORY_MAP } from "../../utils/categoryMap";
 import { API_URL } from "../../../global";
 
+// Same helper as Partners.jsx (name -> two-letter avatar initial); kept
+// local to each file rather than shared, since it's a one-liner.
 function initialsOf(name) {
     return name
         .split(" ")
@@ -28,6 +30,8 @@ function initialsOf(name) {
 }
 
 export function PartnerDetail() {
+    // practitionerId comes from the /partners/:practitionerId route
+    // segment (see App.jsx) rather than a prop.
     const { practitionerId } = useParams();
     const navigate = useNavigate();
     const [partner, setPartner] = useState(null);
@@ -168,6 +172,9 @@ export function PartnerDetail() {
                         )}
                     </Stack>
 
+                    {/* Firm details render only if the practitioner has
+                        one on record — the API always includes it today,
+                        but the field is nullable. */}
                     {partner.firm && (
                         <>
                             <Divider sx={{ mb: 3 }} />
@@ -193,6 +200,9 @@ export function PartnerDetail() {
                         </>
                     )}
 
+                    {/* Carries this attorney's id to the booking form via
+                        a query param, so Consultations.jsx can preselect
+                        it instead of starting the picker empty. */}
                     <Button
                         variant="contained"
                         color="secondary"

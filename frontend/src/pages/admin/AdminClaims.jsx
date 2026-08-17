@@ -30,6 +30,8 @@ import { formatDate } from "../../utils/formatDate";
 import { downloadAuthenticatedFile } from "../../utils/downloadFile";
 import { API_URL } from "../../../global";
 
+// "pending" groups both pending and in-review statuses under one tab; the
+// other three tabs map straight to a single status value.
 const TABS = [
     { value: "all", label: "All" },
     { value: "pending", label: "Pending" },
@@ -64,6 +66,9 @@ export function AdminClaims() {
         loadClaims();
     }, []);
 
+    // Loads the evidence list for whichever claim is currently open in
+    // the review dialog; clears it again once the dialog closes so stale
+    // documents from a previous claim can't flash on the next one.
     useEffect(() => {
         if (!selectedClaim) {
             setSelectedClaimDocuments([]);
@@ -81,6 +86,7 @@ export function AdminClaims() {
             .finally(() => setDocumentsLoading(false));
     }, [selectedClaim]);
 
+    // Applies the active tab against the already-loaded full claim list.
     const filteredClaims = useMemo(() => {
         if (tab === "all") return claims;
         if (tab === "pending")
@@ -90,6 +96,8 @@ export function AdminClaims() {
         return claims.filter((c) => c.status === tab);
     }, [claims, tab]);
 
+    // Approve/reject both go through the same status-update endpoint,
+    // differing only in the status value sent.
     const handleDecision = (claimId, status) => {
         setActionError(null);
         const token = localStorage.getItem("token");
@@ -154,6 +162,9 @@ export function AdminClaims() {
                         </TableHead>
                         <TableBody>
                             {filteredClaims.map((claim) => {
+                                // Once a claim has a final decision, both
+                                // action buttons are disabled — a decision
+                                // isn't reversible from this table.
                                 const decided =
                                     claim.status === "approved" ||
                                     claim.status === "rejected";
@@ -322,6 +333,10 @@ export function AdminClaims() {
                                     {selectedClaim.description}
                                 </Typography>
 
+                                {/* Evidence the client attached, fetched
+                                    by the effect above — downloadable so a
+                                    decision can be based on the actual
+                                    supporting documents. */}
                                 <Divider sx={{ my: 0.5 }} />
 
                                 <Typography

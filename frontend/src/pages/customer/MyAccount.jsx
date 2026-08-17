@@ -34,6 +34,9 @@ import { CATEGORY_MAP } from "../../utils/categoryMap";
 import { formatDate } from "../../utils/formatDate";
 import { API_URL } from "../../../global";
 
+// Option lists for the select fields in the Employment and Banking
+// dialogs — kept as plain arrays rather than fetched, since they mirror
+// the fixed CHECK constraints on the backend.
 const EMPLOYMENT_STATUSES = [
     { value: "employed", label: "Employed" },
     { value: "self-employed", label: "Self-employed" },
@@ -55,6 +58,8 @@ const PAYMENT_METHODS = [
     { value: "card", label: "Card" },
 ];
 
+// Builds the Authorization header (and Content-Type, for write requests)
+// shared by every fetch call below, to avoid repeating it four times.
 function authHeaders(json = false) {
     const token = localStorage.getItem("token");
     const headers = { Authorization: `Bearer ${token}` };
@@ -73,6 +78,9 @@ export function MyAccount() {
     const [error, setError] = useState(null);
     const [actionError, setActionError] = useState(null);
 
+    // Each editable section below (Employment, Banking, Legal History,
+    // Next of Kin) gets its own open/form/saving trio — a separate dialog
+    // and a separate piece of form state, rather than one shared form.
     const [employmentOpen, setEmploymentOpen] = useState(false);
     const [employmentForm, setEmploymentForm] = useState({
         employerName: "",
@@ -111,6 +119,8 @@ export function MyAccount() {
     });
     const [kinSaving, setKinSaving] = useState(false);
 
+    // Fetches everything the page shows in one go: profile, policy,
+    // disclosed legal history, and next-of-kin contacts.
     const loadAll = () => {
         setLoading(true);
         setError(null);
@@ -144,6 +154,8 @@ export function MyAccount() {
         navigate("/login");
     };
 
+    // Seeds the form with whatever's already on file (or blanks) before
+    // opening the dialog, so editing starts from the current values.
     const openEmploymentDialog = () => {
         setEmploymentForm({
             employerName: currentUser.employerName || "",
@@ -179,6 +191,9 @@ export function MyAccount() {
             .finally(() => setEmploymentSaving(false));
     };
 
+    // accountNumber always starts blank here — the API never returns the
+    // real value (only a masked version), so there's nothing to seed it
+    // with. Leaving it blank on save means "keep the existing account".
     const openBankingDialog = () => {
         setBankingForm({
             paymentMethod: policy.paymentMethod || "",
@@ -314,6 +329,8 @@ export function MyAccount() {
                 </Alert>
             )}
 
+            {/* Profile summary card (avatar, contact details, log out)
+                and the current plan card, side by side. */}
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 3 }}>
                 <Card variant="outlined" sx={{ flex: "1 1 320px" }}>
                     <CardContent>
@@ -443,6 +460,9 @@ export function MyAccount() {
                 </Card>
             </Box>
 
+            {/* Employment and Banking cards — each shows a read-only
+                summary when data exists, a prompt when it doesn't, and an
+                edit icon that opens the matching dialog further down. */}
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 3 }}>
                 <Card variant="outlined" sx={{ flex: "1 1 320px" }}>
                     <CardContent>
@@ -642,6 +662,9 @@ export function MyAccount() {
                 </Card>
             </Box>
 
+            {/* Legal History and Next of Kin cards — each is a list with
+                an "Add" button that opens its own dialog; Next of Kin
+                entries can also be deleted inline. */}
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 3 }}>
                 <Card variant="outlined" sx={{ flex: "1 1 320px" }}>
                     <CardContent>
@@ -825,6 +848,10 @@ export function MyAccount() {
                 </Card>
             </Box>
 
+            {/* Below: four edit/add dialogs, one per section above. Each
+                field updates its own form object in place via the
+                prev => ({ ...prev, field: value }) pattern, rather than
+                separate state per field. */}
             <Dialog
                 open={employmentOpen}
                 onClose={() => setEmploymentOpen(false)}
@@ -924,6 +951,8 @@ export function MyAccount() {
                 <DialogTitle>Banking Details</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2.5} sx={{ mt: 0.5 }}>
+                        {/* Reminds what's already on file, since the
+                            account number field below never shows it. */}
                         {policy.bankingOnFile && (
                             <Alert severity="info" variant="outlined">
                                 Account on file: {policy.accountNumberMasked}.
@@ -1090,6 +1119,7 @@ export function MyAccount() {
                             }
                             label="This was claimed against another insurer"
                         />
+                        {/* Only relevant when the checkbox above is ticked. */}
                         {historyForm.wasInsuredClaim && (
                             <TextField
                                 label="Which insurer?"

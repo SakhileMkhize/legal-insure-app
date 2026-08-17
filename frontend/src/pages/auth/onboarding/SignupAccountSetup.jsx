@@ -15,6 +15,8 @@ import Checkbox from "@mui/material/Checkbox";
 import CircularProgress from "@mui/material/CircularProgress";
 import { API_URL } from "../../../../global";
 
+// oneOf([yup.ref("password")]) is how yup expresses "must equal another
+// field" — it re-evaluates whenever either field changes.
 const accountSetupSchema = yup.object({
     password: yup
         .string()
@@ -34,6 +36,8 @@ export function SignupAccountSetup() {
     const navigate = useNavigate();
     const [submitError, setSubmitError] = useState(null);
 
+    // Guards against skipping straight to this step without having
+    // completed the first two (personal details and plan choice).
     useEffect(() => {
         if (!formData.email || !formData.planId) {
             navigate("/signup/details", { replace: true });
@@ -50,6 +54,9 @@ export function SignupAccountSetup() {
         validationSchema: accountSetupSchema,
         onSubmit: (values, { setSubmitting }) => {
             setSubmitError(null);
+            // This is where the whole wizard's collected data (name,
+            // email, phone, chosen plan, and now a password) is finally
+            // sent to the backend, in one signup call.
             const payload = { ...formData, password: values.password };
             fetch(`${API_URL}/auth/signup`, {
                 method: "POST",
@@ -64,6 +71,8 @@ export function SignupAccountSetup() {
                         ),
                 )
                 .then((data) => {
+                    // Signup logs the new account straight in, rather
+                    // than requiring a separate login step afterward.
                     localStorage.setItem("token", data.token);
                     localStorage.setItem("userId", data.id);
                     localStorage.setItem("role", data.role);

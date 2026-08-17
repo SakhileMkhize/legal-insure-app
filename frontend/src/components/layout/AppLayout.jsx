@@ -19,7 +19,7 @@ export function AppLayout() {
             }}
         >
             {role === "admin" ? <AdminNav /> : <CustomerNav />}
-            <Container maxWidth="lg" sx={{ py: 4, flexGrow: 1 }}>
+            <Container maxWidth="xl" sx={{ py: 4, flexGrow: 1 }}>
                 <Outlet />
             </Container>
         </Box>

@@ -42,6 +42,7 @@ import { formatDate } from "../../utils/formatDate";
 import { downloadAuthenticatedFile } from "../../utils/downloadFile";
 import { API_URL } from "../../../global";
 
+// Validation rules for the "Submit New Claim" form, checked by formik.
 const claimSchema = yup.object({
     category: yup.string().required("Category is required"),
     title: yup.string().trim().required("Title is required"),
@@ -66,7 +67,11 @@ export function Claims() {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [submitError, setSubmitError] = useState(null);
     const [expandedId, setExpandedId] = useState(null);
+    // Files staged in the "Submit New Claim" dialog, before the claim
+    // (and thus a claim id to attach them to) exists.
     const [files, setFiles] = useState([]);
+    // Evidence documents already fetched for a given claim, keyed by
+    // claim id — loaded lazily, only once a row is expanded.
     const [documentsByClaim, setDocumentsByClaim] = useState({});
     const [documentsLoading, setDocumentsLoading] = useState({});
     const [uploadingId, setUploadingId] = useState(null);
@@ -94,6 +99,9 @@ export function Claims() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Uploads one or more files against an existing claim id. Shared by
+    // both the initial "New Claim" submission and the "Attach evidence"
+    // control on an already-submitted claim.
     const uploadClaimDocuments = (claimId, fileList) => {
         const token = localStorage.getItem("token");
         const formData = new FormData();
@@ -112,6 +120,8 @@ export function Claims() {
         );
     };
 
+    // Fetches the evidence list for one claim — called the first time its
+    // row is expanded, not up front for every claim on the page.
     const loadClaimDocuments = (claimId) => {
         setDocumentsLoading((prev) => ({ ...prev, [claimId]: true }));
         const token = localStorage.getItem("token");
@@ -128,6 +138,9 @@ export function Claims() {
             );
     };
 
+    // Adds newly picked files to the staged list without discarding
+    // files picked earlier; the input is cleared each time so selecting
+    // the same file twice still fires a change event.
     const handleFileSelect = (event) => {
         setFiles((prev) => [...prev, ...Array.from(event.target.files)]);
         event.target.value = "";
@@ -137,6 +150,8 @@ export function Claims() {
         setFiles((prev) => prev.filter((_, i) => i !== index));
     };
 
+    // Uploads evidence directly against an existing claim (used inside an
+    // already-expanded row, as opposed to the staged-files flow above).
     const handleAttachEvidence = (claimId, event) => {
         const selected = Array.from(event.target.files);
         event.target.value = "";
@@ -190,6 +205,12 @@ export function Claims() {
                         ),
                 )
                 .then((claim) => {
+                    // The claim is created first, then any staged files are
+                    // uploaded against its new id — a claim can't have
+                    // evidence attached before it exists. The dialog closes
+                    // and the list reloads immediately either way; a failed
+                    // upload only shows a warning rather than blocking on it,
+                    // since the claim itself was submitted successfully.
                     resetForm();
                     setDialogOpen(false);
                     loadClaims();
@@ -209,6 +230,8 @@ export function Claims() {
         },
     });
 
+    // Summary numbers for the stat-card row — derived from the claims
+    // list already in state rather than fetched separately.
     const totalClaimed = claims.reduce(
         (sum, claim) => sum + claim.amountClaimed,
         0,
@@ -247,6 +270,7 @@ export function Claims() {
                 Track every claim you've submitted and its progress.
             </Typography>
 
+            {/* Summary stat row */}
             {!loading && !error && (
                 <Box
                     sx={{
@@ -281,6 +305,8 @@ export function Claims() {
                 </Box>
             )}
 
+            {/* Non-blocking warning shown if evidence upload fails after
+                a claim was already submitted successfully. */}
             {evidenceWarning && (
                 <Alert
                     severity="warning"
@@ -323,6 +349,9 @@ export function Claims() {
                     You haven't submitted any claims yet.
                 </Alert>
             )}
+            {/* Claims table — each row toggles an expandable Collapse
+                section (description, evidence list, attach control) below
+                it, rather than navigating to a separate detail page. */}
             {!loading && !error && claims.length > 0 && (
                 <TableContainer component={Paper} variant="outlined">
                     <Table>
@@ -350,6 +379,10 @@ export function Claims() {
                             {claims.map((claim, index) => {
                                 const category = CATEGORY_MAP[claim.category];
                                 const expanded = expandedId === claim.id;
+                                // Expanding a row also lazy-loads its
+                                // evidence list, but only the first time —
+                                // documentsByClaim[next] being set already
+                                // means a re-expand skips the fetch.
                                 const toggle = () => {
                                     const next = expanded ? null : claim.id;
                                     setExpandedId(next);
@@ -360,6 +393,10 @@ export function Claims() {
 
                                 return (
                                     <Fragment key={claim.id}>
+                                        {/* Zebra striping by row index,
+                                            plus a border removed while
+                                            expanded so it visually joins
+                                            the Collapse row beneath it. */}
                                         <TableRow
                                             hover
                                             onClick={toggle}
@@ -421,6 +458,11 @@ export function Claims() {
                                                 />
                                             </TableCell>
                                         </TableRow>
+                                        {/* Hidden second row holding the
+                                            expandable detail — description,
+                                            evidence list, and an "Attach
+                                            evidence" control that uploads
+                                            straight against this claim. */}
                                         <TableRow>
                                             <TableCell
                                                 colSpan={5}
@@ -603,6 +645,9 @@ export function Claims() {
                 </TableContainer>
             )}
 
+            {/* "Submit New Claim" form — a formik-driven form for the
+                claim fields, plus an independent staged-file picker for
+                evidence attached before the claim exists. */}
             <Dialog
                 open={dialogOpen}
                 onClose={() => {

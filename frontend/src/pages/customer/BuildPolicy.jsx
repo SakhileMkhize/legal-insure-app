@@ -30,6 +30,8 @@ import { COVER_CATEGORIES } from "../../data/coverCategories";
 import { formatDate } from "../../utils/formatDate";
 import { API_URL } from "../../../global";
 
+// Labels for the Stepper header — array index doubles as the step number
+// used throughout the component (formData step 0 = "About You", etc.).
 const STEP_LABELS = [
     "About You",
     "Dependants",
@@ -40,6 +42,8 @@ const STEP_LABELS = [
 
 const RELATIONSHIPS = ["Spouse", "Child", "Other"];
 
+// Blank shape for the "add a dependant" mini-form, reused to reset it
+// after each successful add.
 const EMPTY_DEPENDANT = { name: "", dateOfBirth: "", relationship: "" };
 
 export function BuildPolicy() {
@@ -59,6 +63,8 @@ export function BuildPolicy() {
         personalUseConfirmed: false,
         popiaConsent: false,
     });
+    // Shallow-merges partial updates into formData, so each field's
+    // onChange only needs to pass the one key it's changing.
     const updateFormData = (updates) =>
         setFormData((prev) => ({ ...prev, ...updates }));
 
@@ -75,6 +81,8 @@ export function BuildPolicy() {
         });
     };
 
+    // Adds or removes a single category from the selected list, depending
+    // on whether it's already there.
     const toggleCategory = (categoryId) => {
         const isSelected = formData.categoriesCovered.includes(categoryId);
         updateFormData({
@@ -84,6 +92,9 @@ export function BuildPolicy() {
         });
     };
 
+    // Whether "Next" is enabled for each step. Dependants (1) and Review
+    // (4) have nothing mandatory; step 3 additionally requires disclosure
+    // details once a pre-existing dispute has been declared.
     const stepValid = {
         0: Boolean(
             formData.dateOfBirth && formData.idNumber && formData.address,
@@ -98,6 +109,9 @@ export function BuildPolicy() {
         4: true,
     };
 
+    // Submits the whole wizard's worth of answers in one request — the
+    // backend turns "pending" policy into "active" and applies everything
+    // collected across all five steps at once.
     const handleConfirm = () => {
         setSubmitError(null);
         setSubmitting(true);
@@ -139,8 +153,12 @@ export function BuildPolicy() {
                 ))}
             </Stepper>
 
+            {/* Only the block matching the current step renders — the
+                other four stay mounted-out entirely rather than hidden,
+                so formData is the single source of truth across steps. */}
             <Card variant="outlined">
                 <CardContent sx={{ p: 4 }}>
+                    {/* Step 0 — date of birth, ID/passport, address. */}
                     {step === 0 && (
                         <Stack spacing={2.5}>
                             <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -179,6 +197,8 @@ export function BuildPolicy() {
                         </Stack>
                     )}
 
+                    {/* Step 1 — optional list of covered dependants, each
+                        added via the mini-form below the existing list. */}
                     {step === 1 && (
                         <Stack spacing={2.5}>
                             <Box>
@@ -320,6 +340,8 @@ export function BuildPolicy() {
                         </Stack>
                     )}
 
+                    {/* Step 2 — which legal matter categories the policy
+                        should cover; at least one is required to proceed. */}
                     {step === 2 && (
                         <Stack spacing={2.5}>
                             <Box>
@@ -373,6 +395,8 @@ export function BuildPolicy() {
                         </Stack>
                     )}
 
+                    {/* Step 3 — pre-existing dispute disclosure plus the
+                        two consent checkboxes required to activate cover. */}
                     {step === 3 && (
                         <Stack spacing={2.5}>
                             <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -461,6 +485,8 @@ export function BuildPolicy() {
                         </Stack>
                     )}
 
+                    {/* Step 4 — read-only summary of every prior step,
+                        with the final submit button. */}
                     {step === 4 && (
                         <Stack spacing={2.5}>
                             <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -555,6 +581,9 @@ export function BuildPolicy() {
                         </Stack>
                     )}
 
+                    {/* Back/Next navigation — "Next" is hidden on the last
+                        step, since Review has its own Confirm button, and
+                        disabled elsewhere until stepValid[step] is met. */}
                     <Stack
                         direction="row"
                         spacing={2}

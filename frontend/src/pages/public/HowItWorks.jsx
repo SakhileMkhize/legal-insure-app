@@ -11,6 +11,8 @@ import CardContent from "@mui/material/CardContent";
 import { COVER_CATEGORIES } from "../../data/coverCategories";
 import { CategoryIcon } from "../../components/common/CategoryIcon";
 
+// Illustrative journey stages — used purely for the Stepper display
+// below, not tied to a real signed-in user's actual progress.
 const STEPS = [
     "Choose your plan",
     "Get AI guidance & documents",
@@ -41,6 +43,8 @@ export function HowItWorks() {
                 </Typography>
             </Box>
 
+            {/* activeStep=-1 leaves every step unhighlighted — this is a
+                static explainer, not a tracker of real progress. */}
             <Stepper activeStep={-1} alternativeLabel sx={{ mb: 8 }}>
                 {STEPS.map((label) => (
                     <Step key={label}>
@@ -49,6 +53,8 @@ export function HowItWorks() {
                 ))}
             </Stepper>
 
+            {/* Same cover-category list shown on Home.jsx, with a fuller
+                description card layout here. */}
             <Typography variant="h4" align="center" sx={{ mb: 5 }}>
                 What's covered, in detail
             </Typography>

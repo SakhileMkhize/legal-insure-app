@@ -15,6 +15,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import DescriptionIcon from "@mui/icons-material/Description";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import BalanceIcon from "@mui/icons-material/Balance";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { API_URL } from "../../../global";
 
@@ -60,7 +61,7 @@ export function CustomerNav() {
                 borderColor: "divider",
             }}
         >
-            <Toolbar sx={{ maxWidth: 1200, width: "100%", mx: "auto", gap: 2 }}>
+            <Toolbar sx={{ maxWidth: 1536, width: "100%", mx: "auto", gap: 2 }}>
                 <Box
                     sx={{
                         display: "flex",
@@ -129,6 +130,12 @@ export function CustomerNav() {
                         value="/partners"
                     />
                 </Tabs>
+
+                {/* Not built yet — kept visible but inert rather than
+                    hidden, so the affordance is there when it ships. */}
+                <IconButton aria-label="Notifications" disabled>
+                    <NotificationsIcon />
+                </IconButton>
 
                 <IconButton
                     onClick={(event) => setAnchorEl(event.currentTarget)}

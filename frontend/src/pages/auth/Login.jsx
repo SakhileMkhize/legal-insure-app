@@ -14,6 +14,7 @@ import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import { API_URL } from "../../../global";
 
+// Validation rules for the login form.
 const loginSchema = yup.object({
     email: yup
         .string()
@@ -49,9 +50,15 @@ export function Login() {
                         ),
                 )
                 .then((data) => {
+                    // Auth state lives in localStorage, not a cookie or
+                    // context provider — every protected route reads it
+                    // directly (see ProtectedRoute/RequireRole in App.jsx).
                     localStorage.setItem("token", data.token);
                     localStorage.setItem("userId", data.id);
                     localStorage.setItem("role", data.role);
+                    // If the visitor was redirected here from a protected
+                    // page, send them back to it; otherwise land on the
+                    // role-appropriate home page.
                     const fallback =
                         data.role === "admin" ? "/admin" : "/dashboard";
                     navigate(location.state?.from?.pathname ?? fallback, {
@@ -77,6 +84,9 @@ export function Login() {
                     Log in to access your legal cover dashboard.
                 </Typography>
 
+                {/* Demo credentials shown directly on the login screen —
+                    convenient for a capstone/demo build, would not belong
+                    in a production login page. */}
                 <Alert severity="info" variant="outlined" sx={{ mb: 3 }}>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
                         Demo accounts

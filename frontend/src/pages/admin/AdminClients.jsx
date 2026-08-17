@@ -44,6 +44,7 @@ export function AdminClients() {
             .finally(() => setLoading(false));
     }, []);
 
+    // Search and pagination are both applied client-side against the full client list already loaded
     const filteredClients = useMemo(() => {
         const term = search.trim().toLowerCase();
         if (!term) return clients;
@@ -67,6 +68,8 @@ export function AdminClients() {
                 Clients
             </Typography>
 
+            {/* Resets to page 0 on every search change, so a filtered
+                result set never opens on a now-empty later page. */}
             <TextField
                 placeholder="Search by name or email"
                 value={search}
@@ -148,6 +151,8 @@ export function AdminClients() {
                             )}
                         </TableBody>
                     </Table>
+                    {/* count uses the filtered total, not the full client
+                        list, so page numbers stay correct while searching. */}
                     <TablePagination
                         component="div"
                         count={filteredClients.length}
@@ -163,6 +168,8 @@ export function AdminClients() {
                 </TableContainer>
             )}
 
+            {/* Read-only detail dialog for whichever client's "View"
+                button was clicked. */}
             <Dialog
                 open={Boolean(selectedClient)}
                 onClose={() => setSelectedClient(null)}

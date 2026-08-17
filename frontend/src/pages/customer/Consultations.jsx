@@ -22,6 +22,7 @@ import { COVER_CATEGORIES } from "../../data/coverCategories";
 import { formatDateTime } from "../../utils/formatDate";
 import { API_URL } from "../../../global";
 
+// Validation rules for the "Book a Consultation" form.
 const consultationSchema = yup.object({
     category: yup.string().required("Category is required"),
     practitionerId: yup.string().required("Please choose an attorney"),
@@ -68,6 +69,9 @@ export function Consultations() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Refetches the "Preferred Attorney" options whenever the selected
+    // category changes — only practitioners covering that category are
+    // offered, so the field is disabled until a category is picked.
     const loadPractitioners = (category) => {
         if (!category) {
             setPractitioners([]);
@@ -147,6 +151,9 @@ export function Consultations() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Changing category clears any already-chosen attorney, since that
+    // choice may no longer be valid for the new category, then reloads
+    // the attorney list for it.
     const handleCategoryChange = (event) => {
         const category = event.target.value;
         formik.setFieldValue("category", category);
@@ -154,6 +161,8 @@ export function Consultations() {
         loadPractitioners(category);
     };
 
+    // Booking is blocked until the policy is active and the plan actually
+    // includes consultations (0 on the Basic plan).
     const canBook =
         policy &&
         policy.status !== "pending" &&
@@ -185,6 +194,9 @@ export function Consultations() {
                 </Button>
             </Stack>
 
+            {/* Two mutually-exclusive reasons booking might be disabled:
+                policy not built yet, or the current plan excludes
+                consultations entirely. */}
             {!loading && policy?.status === "pending" && (
                 <Alert
                     severity="info"
@@ -219,6 +231,9 @@ export function Consultations() {
             )}
             {!loading && error && <Alert severity="error">{error}</Alert>}
 
+            {/* Consultations split into Upcoming (scheduled) and Past
+                (completed/cancelled) sections, each rendered as its own
+                list of cards. */}
             {!loading && !error && (
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
                     <Box>
@@ -319,6 +334,8 @@ export function Consultations() {
                 </Box>
             )}
 
+            {/* Booking form: category first, then a dependent "Preferred
+                Attorney" dropdown scoped to that category. */}
             <Dialog
                 open={dialogOpen}
                 onClose={() => setDialogOpen(false)}
@@ -371,6 +388,10 @@ export function Consultations() {
                                     formik.touched.practitionerId &&
                                     Boolean(formik.errors.practitionerId)
                                 }
+                                // Falls back through: a validation error
+                                // first, then a category prompt, then a
+                                // no-matches notice — each only shown when
+                                // it actually applies.
                                 helperText={
                                     (formik.touched.practitionerId &&
                                         formik.errors.practitionerId) ||

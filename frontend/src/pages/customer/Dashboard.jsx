@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
@@ -23,7 +22,6 @@ import GavelIcon from "@mui/icons-material/Gavel";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import ShieldIcon from "@mui/icons-material/Shield";
-import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import Dialog from "@mui/material/Dialog";
@@ -36,9 +34,9 @@ import { StatusChip } from "../../components/common/StatusChip";
 import { PLANS } from "../../data/mockPlans";
 import { CATEGORY_MAP } from "../../utils/categoryMap";
 import { formatDate, formatDateTime } from "../../utils/formatDate";
-import { downloadPolicySummary } from "../../utils/policySummary";
 import { API_URL } from "../../../global";
 
+// Maps each benefit id (returned by the API) to the icon shown in its badge.
 const BENEFIT_ICONS = {
     "will-estate": GavelIcon,
     "traffic-fines": DirectionsCarIcon,
@@ -46,17 +44,9 @@ const BENEFIT_ICONS = {
     "identity-theft": ShieldIcon,
 };
 
-// Fixed categorical order (blue/orange/aqua/yellow) validated for CVD-safe
-// adjacent pairs — see dataviz skill's palette.md. Always paired with an
-// icon + text label here, never relied on alone, since two of these four
-// sit below 3:1 contrast against a plain page background.
-const BENEFIT_COLORS = {
-    "will-estate": "#2a78d6",
-    "traffic-fines": "#eb6834",
-    "pre-claim-consult": "#1baf7a",
-    "identity-theft": "#eda100",
-};
-
+// Where the "More Info" dialog's call-to-action button should navigate,
+// per benefit — service benefits point at booking a consultation, the
+// two money-limited ones point at submitting a claim.
 const BENEFIT_ACTIONS = {
     "will-estate": { label: "Book a Consultation", path: "/consultations" },
     "traffic-fines": { label: "Submit a Claim", path: "/claims" },
@@ -64,6 +54,9 @@ const BENEFIT_ACTIONS = {
     "identity-theft": { label: "Submit a Claim", path: "/claims" },
 };
 
+// Turns a benefit's raw usage numbers into a short status label + chip
+// color. Benefits with no usageLimitCount (unlimited) only ever read as
+// "Used" or "Available"; limited ones distinguish partial vs full use.
 function getBenefitStatus(benefit) {
     const { usageLimitCount, usedCount } = benefit;
     if (usageLimitCount == null) {
@@ -80,6 +73,9 @@ function getBenefitStatus(benefit) {
     return { label: "Available", color: "success" };
 }
 
+// Builds the longer, plain-language sentence shown inside the "More Info"
+// dialog (e.g. "Used 1 of 2 covered uses this year. R350 of a R1,000
+// annual limit claimed.").
 function getBenefitUsageSummary(benefit) {
     const { usageLimitCount, usedCount, usageLimitAmount, usedAmount } =
         benefit;
@@ -109,6 +105,9 @@ export function Dashboard() {
     const [error, setError] = useState(null);
     const [selectedBenefit, setSelectedBenefit] = useState(null);
 
+    // Everything the dashboard needs lives on five separate endpoints, so
+    // they're fetched together and the page waits for all five before
+    // rendering, rather than showing partial data as each one resolves.
     useEffect(() => {
         setLoading(true);
         setError(null);
@@ -136,6 +135,7 @@ export function Dashboard() {
             .finally(() => setLoading(false));
     }, [userId]);
 
+    // Loading spinner while the Promise.all above is still in flight.
     if (loading) {
         return (
             <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
@@ -148,8 +148,13 @@ export function Dashboard() {
         return <Alert severity="error">{error}</Alert>;
     }
 
+    // Plan details (price, features) come from static mock data keyed by
+    // the plan id on the policy — the backend only stores the id.
     const plan = PLANS.find((p) => p.id === policy.planId);
 
+    // A brand-new signup has a policy but hasn't gone through underwriting
+    // yet, so the full dashboard (claims, benefits, cover usage) wouldn't
+    // mean anything — a short prompt to finish onboarding is shown instead.
     if (policy.status === "pending") {
         return (
             <Box>
@@ -202,6 +207,9 @@ export function Dashboard() {
         );
     }
 
+    // -1 is the backend's convention for "unlimited" consultations
+    // (the Ultimate plan), so it needs its own display case rather than
+    // showing "3/-1".
     const unlimitedConsultations = policy.consultationsIncluded === -1;
     const upcomingConsultation = consultations.find(
         (c) => c.status === "scheduled",
@@ -209,6 +217,8 @@ export function Dashboard() {
     const openClaims = claims.filter(
         (claim) => claim.status === "pending" || claim.status === "in-review",
     ).length;
+    // Basic/Premium have no monetary cover limit at all, so the percentage
+    // would divide by zero — shown as a dash instead.
     const coverUsedLabel =
         policy.coverLimit > 0
             ? `${Math.round((policy.coverUsed / policy.coverLimit) * 100)}%`
@@ -216,6 +226,7 @@ export function Dashboard() {
 
     return (
         <Box>
+            {/* Page greeting */}
             <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
                 Welcome back, {currentUser.firstName}
             </Typography>
@@ -223,129 +234,82 @@ export function Dashboard() {
                 Here's an overview of your legal cover.
             </Typography>
 
-            <Card
-                variant="outlined"
-                sx={{
-                    mb: 4,
-                    borderRadius: 3,
-                    background: `linear-gradient(135deg, ${alpha(
-                        BENEFIT_COLORS["will-estate"],
-                        0.06,
-                    )} 0%, ${alpha(BENEFIT_COLORS["identity-theft"], 0.08)} 100%)`,
-                }}
-            >
-                <CardContent sx={{ p: 3 }}>
-                    <Stack
-                        direction="row"
-                        spacing={1}
-                        sx={{ alignItems: "center", mb: 0.5 }}
-                    >
-                        <CardGiftcardIcon color="secondary" />
-                        <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                            Your Benefits
-                        </Typography>
-                    </Stack>
+            {/* Benefits card — one row per perk, with a status chip and a
+                "More Info" button that opens the dialog further down. */}
+            <Card variant="outlined" sx={{ mb: 3 }}>
+                <CardContent>
                     <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mb: 2.5 }}
+                        variant="subtitle1"
+                        sx={{ fontWeight: 700, mb: 1.5 }}
                     >
-                        Perks included with your cover — make the most of
-                        them.
+                        Your Benefits
                     </Typography>
-                    <Box
-                        sx={{
-                            display: "grid",
-                            gridTemplateColumns: {
-                                xs: "1fr",
-                                sm: "1fr 1fr",
-                            },
-                            gap: 2,
-                        }}
-                    >
+                    <Stack divider={<Divider />} spacing={1.5}>
                         {benefits.map((benefit) => {
-                            const Icon =
-                                BENEFIT_ICONS[benefit.id] ?? GavelIcon;
-                            const color =
-                                BENEFIT_COLORS[benefit.id] ?? "#2a78d6";
+                            const Icon = BENEFIT_ICONS[benefit.id] ?? GavelIcon;
                             const status = getBenefitStatus(benefit);
                             return (
-                                <Box
+                                <Stack
                                     key={benefit.id}
+                                    direction="row"
+                                    spacing={{ xs: 1.5, sm: 2 }}
                                     sx={{
-                                        display: "flex",
-                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        py: 0.5,
+                                        flexWrap: "wrap",
                                         gap: 1,
-                                        p: 2,
-                                        borderRadius: 2,
-                                        bgcolor: alpha(color, 0.1),
-                                        border: "1px solid",
-                                        borderColor: alpha(color, 0.3),
                                     }}
                                 >
-                                    <Stack
-                                        direction="row"
-                                        spacing={1.5}
-                                        sx={{ alignItems: "center" }}
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            width: 40,
+                                            height: 40,
+                                            borderRadius: 1.5,
+                                            bgcolor: "secondary.light",
+                                            color: "secondary.dark",
+                                            flexShrink: 0,
+                                        }}
                                     >
-                                        <Box
-                                            sx={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                width: 40,
-                                                height: 40,
-                                                borderRadius: "50%",
-                                                bgcolor: color,
-                                                color: "#fff",
-                                                flexShrink: 0,
-                                            }}
+                                        <Icon fontSize="small" />
+                                    </Box>
+                                    <Box sx={{ flex: 1, minWidth: 180 }}>
+                                        <Typography
+                                            variant="body2"
+                                            sx={{ fontWeight: 600 }}
                                         >
-                                            <Icon fontSize="small" />
-                                        </Box>
-                                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                                            <Typography
-                                                variant="body2"
-                                                sx={{ fontWeight: 700 }}
-                                            >
-                                                {benefit.label}
-                                            </Typography>
-                                            <Typography
-                                                variant="caption"
-                                                color="text.secondary"
-                                            >
-                                                {benefit.usageLimitCount === 1
-                                                    ? status.label
-                                                    : benefit.usageLimitCount !=
-                                                        null
-                                                      ? `${benefit.usedCount} of ${benefit.usageLimitCount} used`
-                                                      : status.label}
-                                            </Typography>
-                                        </Box>
-                                        <Chip
-                                            size="small"
-                                            label={status.label}
-                                            color={
-                                                status.color === "default"
-                                                    ? undefined
-                                                    : status.color
-                                            }
-                                            variant={
-                                                status.color === "success"
-                                                    ? "outlined"
-                                                    : "filled"
-                                            }
-                                        />
-                                    </Stack>
+                                            {benefit.label}
+                                        </Typography>
+                                        <Typography
+                                            variant="caption"
+                                            color="text.secondary"
+                                        >
+                                            {benefit.usageLimitCount === 1
+                                                ? status.label
+                                                : benefit.usageLimitCount !=
+                                                    null
+                                                  ? `${benefit.usedCount} of ${benefit.usageLimitCount} used`
+                                                  : status.label}
+                                        </Typography>
+                                    </Box>
+                                    <Chip
+                                        size="small"
+                                        label={status.label}
+                                        color={
+                                            status.color === "default"
+                                                ? undefined
+                                                : status.color
+                                        }
+                                        variant={
+                                            status.color === "success"
+                                                ? "outlined"
+                                                : "filled"
+                                        }
+                                    />
                                     <Button
                                         size="small"
-                                        sx={{
-                                            alignSelf: "flex-start",
-                                            color,
-                                            "&:hover": {
-                                                bgcolor: alpha(color, 0.12),
-                                            },
-                                        }}
                                         startIcon={
                                             <InfoOutlinedIcon fontSize="small" />
                                         }
@@ -355,13 +319,16 @@ export function Dashboard() {
                                     >
                                         More Info
                                     </Button>
-                                </Box>
+                                </Stack>
                             );
                         })}
-                    </Box>
+                    </Stack>
                 </CardContent>
             </Card>
 
+            {/* Four glanceable numbers summarizing the account at a
+                whole-page level; StatCard is the shared icon+value tile
+                also used on the Admin Dashboard. */}
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 3 }}>
                 <StatCard
                     icon={<PaidIcon />}
@@ -391,6 +358,8 @@ export function Dashboard() {
                 />
             </Box>
 
+            {/* "Your Plan" card: plan name/price, cover categories, and
+                the policy-identity/POPIA-consent footer strip. */}
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 3 }}>
                 <Card variant="outlined" sx={{ flex: "1 1 320px" }}>
                     <CardContent>
@@ -428,6 +397,8 @@ export function Dashboard() {
                             Active since {formatDate(policy.startDate)}
                         </Typography>
 
+                        {/* Category chips only appear once cover has
+                            actually been configured for this policy. */}
                         {policy.categoriesCovered?.length > 0 && (
                             <Stack
                                 direction="row"
@@ -495,6 +466,9 @@ export function Dashboard() {
                 </Card>
             </Box>
 
+            {/* Recent Claims (left) and Upcoming Consultation (right) — a
+                short preview of each, with a link through to the full
+                page for either. */}
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 3 }}>
                 <Card variant="outlined" sx={{ flex: "1 1 320px" }}>
                     <CardContent>
@@ -524,6 +498,8 @@ export function Dashboard() {
                                 You haven't submitted any claims yet.
                             </Typography>
                         )}
+                        {/* Only the 3 most recent claims — the rest live
+                            on the full Claims page behind "View all". */}
                         <Stack spacing={0.5}>
                             {claims.slice(0, 3).map((claim) => (
                                 <Stack
@@ -606,6 +582,9 @@ export function Dashboard() {
                 </Card>
             </Box>
 
+            {/* Quick Actions — shortcuts to the same destinations reachable
+                elsewhere in the app, plus the policy-summary download and
+                a still-unbuilt "Ask AI Assistant" placeholder (disabled). */}
             <Card variant="outlined">
                 <CardContent>
                     <Typography
@@ -640,13 +619,7 @@ export function Dashboard() {
                         <Button
                             variant="outlined"
                             startIcon={<ArticleIcon />}
-                            onClick={() =>
-                                downloadPolicySummary({
-                                    user: currentUser,
-                                    policy,
-                                    plan,
-                                })
-                            }
+                            disabled
                         >
                             Download Policy Summary
                         </Button>
@@ -654,6 +627,9 @@ export function Dashboard() {
                 </CardContent>
             </Card>
 
+            {/* "More Info" dialog for whichever benefit was clicked.
+                selectedBenefit doubles as both the open/closed flag and the
+                data source, so there's no separate boolean to keep in sync. */}
             <Dialog
                 open={Boolean(selectedBenefit)}
                 onClose={() => setSelectedBenefit(null)}
