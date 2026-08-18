@@ -7,6 +7,8 @@ from models.dependant import Dependant
 from models.benefit import Benefit
 from models.policy_benefit import PolicyBenefit
 from models.user import User
+from models.next_of_kin import NextOfKin
+from models.legal_history_entry import LegalHistoryEntry
 from sqlalchemy import select
 from datetime import date
 import uuid
@@ -14,6 +16,8 @@ import uuid
 policies_bp = Blueprint("policies_bp", __name__)
 
 ALLOWED_PAYMENT_METHODS = {"debit_order", "eft", "card"}
+EMPLOYMENT_STATUSES = {"employed", "self-employed", "unemployed", "retired", "student"}
+MARITAL_STATUSES = {"single", "married", "divorced", "widowed"}
 
 
 def parse_date(value):
@@ -140,10 +144,41 @@ def build_policy():
     policy.personal_use_confirmed = bool(data.get("personalUseConfirmed"))
     policy.popia_consent = bool(data.get("popiaConsent"))
 
+    # Banking is only touched when the wizard actually sent a payment
+    # method - keeps this endpoint safe to call even if a client skips
+    # the section entirely.
+    payment_method = data.get("paymentMethod")
+    if payment_method:
+        if payment_method not in ALLOWED_PAYMENT_METHODS:
+            return {"message": "Invalid payment method"}, 400
+        policy.payment_method = payment_method
+        policy.bank_name = data.get("bankName")
+        policy.account_holder = data.get("accountHolder")
+        policy.branch_code = data.get("branchCode")
+        account_number = data.get("accountNumber")
+        if account_number and account_number.strip():
+            policy.account_number = account_number.strip()
+
     user = db.session.get(User, user_id)
     user.date_of_birth = parse_date(data.get("dateOfBirth"))
     user.id_number = data.get("idNumber")
     user.address = data.get("address")
+
+    employment_status = data.get("employmentStatus")
+    if employment_status and employment_status not in EMPLOYMENT_STATUSES:
+        return {"message": "Invalid employment status"}, 400
+    marital_status = data.get("maritalStatus")
+    if marital_status and marital_status not in MARITAL_STATUSES:
+        return {"message": "Invalid marital status"}, 400
+
+    if "employerName" in data:
+        user.employer_name = data.get("employerName")
+    if "occupation" in data:
+        user.occupation = data.get("occupation")
+    if employment_status:
+        user.employment_status = employment_status
+    if marital_status:
+        user.marital_status = marital_status
 
     for category in db.session.scalars(
         select(PolicyCoverCategory).where(PolicyCoverCategory.policy_id == policy.id)
@@ -154,6 +189,19 @@ def build_policy():
         select(Dependant).where(Dependant.policy_id == policy.id)
     ):
         db.session.delete(dependant)
+
+    # Next of kin and legal history belong to the user rather than the
+    # policy, but the wizard still treats them as one submission - the
+    # list it sends replaces whatever was recorded before.
+    for contact in db.session.scalars(
+        select(NextOfKin).where(NextOfKin.user_id == user_id)
+    ):
+        db.session.delete(contact)
+
+    for entry in db.session.scalars(
+        select(LegalHistoryEntry).where(LegalHistoryEntry.user_id == user_id)
+    ):
+        db.session.delete(entry)
 
     try:
         db.session.flush()
@@ -171,6 +219,32 @@ def build_policy():
                     name=dependant.get("name"),
                     date_of_birth=parse_date(dependant.get("dateOfBirth")),
                     relationship=dependant.get("relationship"),
+                )
+            )
+
+        for contact in data.get("nextOfKin", []):
+            db.session.add(
+                NextOfKin(
+                    id=str(uuid.uuid4()),
+                    user_id=user_id,
+                    name=contact.get("name"),
+                    relationship=contact.get("relationship"),
+                    phone=contact.get("phone"),
+                    email=contact.get("email"),
+                )
+            )
+
+        for entry in data.get("legalHistory", []):
+            db.session.add(
+                LegalHistoryEntry(
+                    id=str(uuid.uuid4()),
+                    user_id=user_id,
+                    category_id=entry.get("category") or None,
+                    description=entry.get("description"),
+                    occurred_at=parse_date(entry.get("occurredAt")),
+                    was_insured_claim=bool(entry.get("wasInsuredClaim")),
+                    other_insurer=entry.get("otherInsurer"),
+                    disclosed_at=date.today(),
                 )
             )
 

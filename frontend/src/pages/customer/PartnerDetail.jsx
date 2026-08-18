@@ -194,6 +194,7 @@ export function PartnerDetail() {
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
+                                sx={{ display: "block" }}
                             >
                                 {partner.firm.address}
                             </Typography>
