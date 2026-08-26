@@ -39,12 +39,6 @@ export function BuildPolicy() {
         categoriesCovered: [],
         hasPreExistingDispute: "no",
         preExistingDisputeDetails: "",
-        paymentMethod: "",
-        bankName: "",
-        accountHolder: "",
-        accountNumber: "",
-        branchCode: "",
-        legalHistory: [],
         personalUseConfirmed: false,
         popiaConsent: false,
     });
@@ -55,9 +49,10 @@ export function BuildPolicy() {
 
     // Whether "Next" is enabled for each step. Dependants (1) and Review
     // (4) have nothing mandatory; step 3 additionally requires disclosure
-    // details once a pre-existing dispute has been declared. Employment,
-    // next of kin, banking and legal history stay optional throughout,
-    // same as they are on the account page.
+    // details once a pre-existing dispute has been declared. Employment and
+    // next of kin stay optional throughout, same as on the account page.
+    // Banking and legal history aren't collected here at all — those stay
+    // My Account-only, added after the policy is active.
     const stepValid = {
         0: Boolean(
             formData.dateOfBirth && formData.idNumber && formData.address,

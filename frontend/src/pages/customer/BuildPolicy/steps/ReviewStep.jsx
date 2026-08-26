@@ -6,7 +6,7 @@ import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import { COVER_CATEGORIES } from "../../../../data/coverCategories";
 import { formatDate } from "../../../../utils/formatDate";
-import { EMPLOYMENT_STATUSES, MARITAL_STATUSES, PAYMENT_METHODS } from "../constants";
+import { EMPLOYMENT_STATUSES, MARITAL_STATUSES } from "../constants";
 
 // Read-only summary of every prior step, with the final submit button that
 // hands everything collected so far to the backend in one request.
@@ -82,28 +82,6 @@ export function ReviewStep({ formData, submitError, submitting, onConfirm }) {
                                 COVER_CATEGORIES.find((c) => c.id === id)?.label,
                         )
                         .join(", ")}
-                </Typography>
-            </Box>
-
-            <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                    Banking Details
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                    {formData.paymentMethod
-                        ? `${PAYMENT_METHODS.find((o) => o.value === formData.paymentMethod)?.label} · ${formData.bankName || "bank not set"}`
-                        : "Not provided yet."}
-                </Typography>
-            </Box>
-
-            <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                    Legal History
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                    {formData.legalHistory.length === 0
-                        ? "None disclosed."
-                        : `${formData.legalHistory.length} ${formData.legalHistory.length === 1 ? "entry" : "entries"} disclosed.`}
                 </Typography>
             </Box>
 

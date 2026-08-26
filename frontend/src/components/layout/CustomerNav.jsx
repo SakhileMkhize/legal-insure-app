@@ -3,14 +3,12 @@ import { NavLink, useNavigate, useLocation } from "react-router";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Avatar from "@mui/material/Avatar";
-import GavelIcon from "@mui/icons-material/Gavel";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import DescriptionIcon from "@mui/icons-material/Description";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
@@ -18,6 +16,8 @@ import BalanceIcon from "@mui/icons-material/Balance";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { API_URL } from "../../../global";
+import logoMark from "../../assets/legalinsure-mark.png";
+import logoFull from "../../assets/legalinsure-logo.png";
 
 const NAV_PATHS = ["/dashboard", "/claims", "/consultations", "/partners"];
 
@@ -72,30 +72,21 @@ export function CustomerNav() {
                     }}
                     onClick={() => navigate("/dashboard")}
                 >
+                    {/* Icon-only mark on mobile, full wordmark lockup once
+                        there's room for it - mirrors the old icon+text
+                        pattern this replaced. */}
                     <Box
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: 36,
-                            height: 36,
-                            borderRadius: 2,
-                            bgcolor: "primary.main",
-                            color: "secondary.main",
-                        }}
-                    >
-                        <GavelIcon fontSize="small" />
-                    </Box>
-                    <Typography
-                        variant="h6"
-                        sx={{
-                            fontWeight: 800,
-                            color: "primary.main",
-                            display: { xs: "none", sm: "block" },
-                        }}
-                    >
-                        LegalInsure
-                    </Typography>
+                        component="img"
+                        src={logoMark}
+                        alt="LegalInsure"
+                        sx={{ height: 32, display: { xs: "block", sm: "none" } }}
+                    />
+                    <Box
+                        component="img"
+                        src={logoFull}
+                        alt="LegalInsure"
+                        sx={{ height: 28, display: { xs: "none", sm: "block" } }}
+                    />
                 </Box>
 
                 <Tabs

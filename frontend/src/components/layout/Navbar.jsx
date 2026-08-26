@@ -9,10 +9,9 @@ import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import MenuIcon from "@mui/icons-material/Menu";
-import GavelIcon from "@mui/icons-material/Gavel";
+import logoFull from "../../assets/legalinsure-logo.png";
 
 const NAV_LINKS = [
     { label: "Home", to: "/" },
@@ -49,25 +48,11 @@ export function Navbar() {
                     onClick={() => navigate("/")}
                 >
                     <Box
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: 36,
-                            height: 36,
-                            borderRadius: 2,
-                            bgcolor: "primary.main",
-                            color: "secondary.main",
-                        }}
-                    >
-                        <GavelIcon fontSize="small" />
-                    </Box>
-                    <Typography
-                        variant="h6"
-                        sx={{ fontWeight: 800, color: "primary.main" }}
-                    >
-                        LegalInsure
-                    </Typography>
+                        component="img"
+                        src={logoFull}
+                        alt="LegalInsure"
+                        sx={{ height: 30 }}
+                    />
                 </Box>
 
                 <Box

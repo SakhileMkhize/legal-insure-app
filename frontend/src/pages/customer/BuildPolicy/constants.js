@@ -28,20 +28,7 @@ export const MARITAL_STATUSES = [
     { value: "widowed", label: "Widowed" },
 ];
 
-export const PAYMENT_METHODS = [
-    { value: "debit_order", label: "Debit Order" },
-    { value: "eft", label: "EFT" },
-    { value: "card", label: "Card" },
-];
-
 // Blank shapes for each "add an item" mini-form, reused to reset them
 // after every successful add.
 export const EMPTY_DEPENDANT = { name: "", dateOfBirth: "", relationship: "" };
 export const EMPTY_KIN = { name: "", relationship: "", phone: "", email: "" };
-export const EMPTY_HISTORY_ENTRY = {
-    category: "",
-    description: "",
-    occurredAt: "",
-    wasInsuredClaim: false,
-    otherInsurer: "",
-};

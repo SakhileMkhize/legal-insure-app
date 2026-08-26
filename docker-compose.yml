@@ -1,0 +1,13 @@
+# Frontend only - the Flask backend runs locally on the host (port 5000),
+# not in a container. The browser (not this container) calls it directly
+# via the absolute URL in frontend/global.js, so no custom network or
+# inter-container proxying is needed here.
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: legal-insure-frontend
+    ports:
+      - "8080:80"
+    restart: unless-stopped

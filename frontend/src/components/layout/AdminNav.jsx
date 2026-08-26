@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Chip from "@mui/material/Chip";
@@ -11,12 +10,13 @@ import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Avatar from "@mui/material/Avatar";
-import GavelIcon from "@mui/icons-material/Gavel";
 import SpaceDashboardIcon from "@mui/icons-material/SpaceDashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import GavelOutlinedIcon from "@mui/icons-material/GavelOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { API_URL } from "../../../global";
+import logoMark from "../../assets/legalinsure-mark.png";
+import logoFull from "../../assets/legalinsure-logo.png";
 
 const NAV_PATHS = ["/admin", "/admin/clients", "/admin/claims"];
 
@@ -61,29 +61,21 @@ export function AdminNav() {
                         mr: 2,
                     }}
                 >
+                    {/* Icon-only mark on mobile, full wordmark lockup once
+                        there's room for it. Transparent PNGs, so the blue
+                        mark reads fine on this dark AppBar too. */}
                     <Box
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: 36,
-                            height: 36,
-                            borderRadius: 2,
-                            bgcolor: "secondary.main",
-                            color: "primary.main",
-                        }}
-                    >
-                        <GavelIcon fontSize="small" />
-                    </Box>
-                    <Typography
-                        variant="h6"
-                        sx={{
-                            fontWeight: 800,
-                            display: { xs: "none", sm: "block" },
-                        }}
-                    >
-                        LegalInsure
-                    </Typography>
+                        component="img"
+                        src={logoMark}
+                        alt="LegalInsure"
+                        sx={{ height: 32, display: { xs: "block", sm: "none" } }}
+                    />
+                    <Box
+                        component="img"
+                        src={logoFull}
+                        alt="LegalInsure"
+                        sx={{ height: 28, display: { xs: "none", sm: "block" } }}
+                    />
                     <Chip
                         label="Admin"
                         size="small"

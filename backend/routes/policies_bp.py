@@ -190,18 +190,22 @@ def build_policy():
     ):
         db.session.delete(dependant)
 
-    # Next of kin and legal history belong to the user rather than the
-    # policy, but the wizard still treats them as one submission - the
-    # list it sends replaces whatever was recorded before.
+    # Next of kin belongs to the user rather than the policy, but the
+    # wizard still treats it as one submission - the list it sends
+    # replaces whatever was recorded before. Legal history isn't collected
+    # by the wizard at all (added later from My Account instead), so it's
+    # only touched here if a caller actually sends the key - otherwise
+    # every rebuild would silently wipe out entries added since.
     for contact in db.session.scalars(
         select(NextOfKin).where(NextOfKin.user_id == user_id)
     ):
         db.session.delete(contact)
 
-    for entry in db.session.scalars(
-        select(LegalHistoryEntry).where(LegalHistoryEntry.user_id == user_id)
-    ):
-        db.session.delete(entry)
+    if "legalHistory" in data:
+        for entry in db.session.scalars(
+            select(LegalHistoryEntry).where(LegalHistoryEntry.user_id == user_id)
+        ):
+            db.session.delete(entry)
 
     try:
         db.session.flush()

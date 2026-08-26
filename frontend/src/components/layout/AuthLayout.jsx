@@ -1,10 +1,9 @@
 import { Outlet, NavLink } from "react-router";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
 import Toolbar from "@mui/material/Toolbar";
 import AppBar from "@mui/material/AppBar";
-import GavelIcon from "@mui/icons-material/Gavel";
+import logoFull from "../../assets/legalinsure-logo.png";
 
 export function AuthLayout() {
     return (
@@ -29,25 +28,11 @@ export function AuthLayout() {
                         }}
                     >
                         <Box
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                width: 36,
-                                height: 36,
-                                borderRadius: 2,
-                                bgcolor: "primary.main",
-                                color: "secondary.main",
-                            }}
-                        >
-                            <GavelIcon fontSize="small" />
-                        </Box>
-                        <Typography
-                            variant="h6"
-                            sx={{ fontWeight: 800, color: "primary.main" }}
-                        >
-                            LegalInsure
-                        </Typography>
+                            component="img"
+                            src={logoFull}
+                            alt="LegalInsure"
+                            sx={{ height: 30 }}
+                        />
                     </Box>
                 </Toolbar>
             </AppBar>

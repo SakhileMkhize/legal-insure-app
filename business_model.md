@@ -14,7 +14,135 @@ and matters (traffic tickets, state-specific document packs) were left out —
 not applicable to a Rand-denominated, SA-law product. Internal
 employee/law-firm-staff onboarding material was also left out — we're
 onboarding *policyholders*, not legal officers or law firm staff; that's a
-different business entirely.
+different business entirely. The Business Problem and Competitor Landscape
+sections below were added from live web research (current SA
+legal-insurance provider pricing pages and access-to-justice statistics,
+checked August 2026) rather than assumption — sourced inline.
+
+---
+
+## Business Problem
+
+South Africa's legal system has a severe access-to-justice gap, and it's a
+**cost problem, not an awareness problem**:
+
+- **Private legal representation is priced out of reach for most
+  households.** Attorneys typically bill R1,500–R3,000/hour (up to
+  R4,000+ for senior practitioners or advocates), with consultation fees
+  alone starting at R500–R2,000 — before any actual work begins. A single
+  drawn-out dispute (an unfair dismissal, a bad tenancy, a contract gone
+  wrong) can cost more than a year of a working household's discretionary
+  income.
+- **Only 12.9% of litigating individuals can afford a private attorney**
+  (ProBono.org South Africa research). The overwhelming majority of
+  people with a legitimate legal problem either represent themselves, go
+  without representation entirely, or don't pursue the matter at all.
+- **State legal aid barely touches civil disputes.** Legal Aid South
+  Africa's capacity is structurally weighted toward criminal matters
+  (≈89% of new matters accepted are criminal, only ≈11% civil) — leaving
+  exactly the categories this product covers (labour disputes, consumer
+  claims, civil litigation, property disputes) almost entirely unserved
+  by the state.
+- **Almost half the population (≈48.5%) lives below the national poverty
+  line.** This isn't a niche affordability problem — it's the default
+  financial reality for a working majority who still get into landlord
+  disputes, unfair dismissals, and bad contracts like anyone else.
+
+The result is a large, underserved middle: people who earn too much to
+qualify for Legal Aid's means test, but nowhere near enough to retain a
+private attorney at R1,500+/hour. Without an affordable middle option,
+legitimate disputes routinely cost people money, a job, or a home — not
+because they were in the wrong, but because they couldn't afford qualified
+advice at the moment it mattered.
+
+**Sources:** [ProBono.org — Access to Justice in South Africa, 30 Years
+into Freedom](https://probono.org.za/access-to-justice-in-south-africa-30-years-into-freedom/) ·
+[De Rebus — Civil legal aid in South Africa: capacity constraints and access barriers](https://www.derebus.org.za/civil-legal-aid-in-south-africa-capacity-constraints-and-access-barriers/) ·
+[Bidvest Insurance — How much do lawyers charge per hour?](https://bidvestinsurance.co.za/lawyer-hourly-rates/) ·
+[ChatLegal — How much do lawyers and attorneys charge in 2025?](https://www.chatlegal.co.za/cost/how-much-do-lawyers-and-attorneys-charge/)
+
+---
+
+## How LegalInsure Tackles This
+
+The product is built to sit in that gap, priced and structured like
+insurance rather than sold like legal services:
+
+- **Insurance pricing, not hourly billing.** A flat R99–R399/month
+  (§3 Product Structure) turns an unpredictable, potentially
+  household-income-scale legal bill into a small, budgetable recurring
+  cost — the same reframing that already makes car and home insurance
+  work for the same market segment.
+- **A ladder, not an all-or-nothing choice.** Three tiers mean someone
+  isn't forced to choose between "nothing" and "full litigation cover."
+  Basic gets AI guidance and document templates to people who'd otherwise
+  face a lease dispute or a demand letter with zero help at all; Premium
+  adds real attorney time; Ultimate adds actual litigation funding for
+  when a dispute escalates past advice into representation.
+- **Coverage aimed at the categories Legal Aid doesn't reach.** Labour
+  disputes, consumer claims, civil litigation, property disputes — the
+  civil-matter categories Legal Aid South Africa's criminal-first mandate
+  leaves almost entirely unserved (see Business Problem above).
+- **Self-service by design.** Claim submission with evidence upload and
+  consultation booking happen in-app rather than exclusively through a
+  call centre (§4 Client Onboarding; retention case in §6) — a deliberate
+  bet against the call-centre-first matter-handling every researched
+  competitor still relies on (see Competitor Landscape below).
+- **Underwriting honesty over blanket "unlimited legal help" marketing.**
+  The pre-existing-dispute disclosure, waiting period, and
+  reasonable-prospect-of-success claim gate (§4, §5) exist so the
+  product's promises are ones it can actually keep. A slow or badly
+  explained claims process is the single biggest churn driver in this
+  category (§6), so getting that mechanic right matters more here than in
+  most SaaS products.
+
+---
+
+## Competitor Landscape
+
+Four established SA legal-insurance providers were researched directly
+(current pricing/plan pages, checked August 2026) to test LegalInsure's
+positioning against what already exists, rather than assume a gap that
+isn't real:
+
+| Provider | Entry price/mo | Top researched tier | Cover limit (top tier) | Notable |
+|---|---|---|---|---|
+| **LegalWise** | R151 | Platinum, R385/mo | R385,000/case | Market leader, 1.12M+ members. App covers policy admin (schedule, beneficiaries, premium payment, lawyer search) and a newer employment-grievance self-service tool — but matter-handling still routes through a call centre/branch network. |
+| **Clientèle Legal** | R330 (Standard) | Extended Family, R385/mo | Not published (R40,000 add-on cover specifically for extended family members) | R5,000 automatic bail benefit; separate R620/mo business legal plan aimed at SMEs. Positioned toward established households, not entry-level. |
+| **Scorpion Legal Protection** | Not published | Platinum, R206/mo | R226,600/case | **Already ships an AI-powered legal assistant on its plans** — the closest existing competitor to LegalInsure's AI-guidance angle. ~20 years in market. |
+| **LAW For All** | R159 | Platinum Plus, R349/mo | R349,000/case | 24-hour emergency bail line; 30-day money-back guarantee — mirrors the cooling-off period this product already commits to (§1). |
+
+**What this means for LegalInsure's positioning:**
+
+- **Price is not a wedge.** LegalInsure's R99–R399 range sits inside the
+  same band every provider above already occupies — cheap entry pricing
+  alone isn't a differentiator in this market.
+- **AI guidance is a catch-up feature, not a lead.** Scorpion already
+  ships an AI legal assistant, so including one from Basic upward is
+  table stakes, not innovation. Differentiation has to come from *how
+  well integrated* it is with the rest of the claims/consultation
+  workflow, not from its mere existence.
+- **The real, defensible gap is end-to-end self-service.** None of the
+  researched plan pages advertise in-app claim submission with evidence
+  upload, in-app attorney booking, or transparent in-app tracking of a
+  claim's status against multiple decision criteria — matter-handling
+  still centers on a call centre or branch visit even where the policy
+  admin itself has gone digital (LegalWise's app). That's the lane
+  LegalInsure is actually building for.
+- **Cover-limit competitiveness needs revisiting.** Every provider above
+  caps between R226,600 and R385,000 per case/year. LegalInsure's
+  Ultimate tier currently targets R500,000 (§3, already flagged open in
+  §7) — this research suggests R250,000–R350,000 is the better-supported,
+  defensible number, rather than a headline "biggest number wins" figure
+  that isn't anchored to what the market actually prices.
+
+**Sources:** [LegalWise — Compare Plans](https://www.legalwise.co.za/products/compare) ·
+[LegalWise — Go Online](https://www.legalwise.co.za/go-online) ·
+[Clientèle — Legal Plans](https://clientelemobi.co.za/products/legal/) ·
+[Clientèle — Legal Business](https://clientele.co.za/products/legal-business/) ·
+[Scorpion Legal Protection](https://www.scorpion.biz/) ·
+[insurance.co.za — Scorpion Legal Protection & Insurance](https://insurance.co.za/insurance-companies/scorpion-legal-protection) ·
+[LAW FOR ALL — Legal Insurance Plans](https://www.lawforall.co.za/legal-insurance-plans/)
 
 ---
 
@@ -203,7 +331,8 @@ not built here — noted so nobody mistakes the absence for an oversight:
 - Real attorney panel integration (partner APIs are mocked/seeded)
 - Employer/group self-service billing portal (institutional = phone only)
 - FSCA/FAIS regulatory licensing
-- Ultimate plan's R500,000 cover limit — carried over from initial design,
-  not yet validated against what's realistic for the SA market (LegalWise-
-  style products often cap lower, R100k–R250k) — open decision
+- Ultimate plan's R500,000 cover limit — carried over from initial design;
+  researched SA competitors cap between R226,600 and R385,000/case (see
+  Competitor Landscape), so R250,000–R350,000 is the better-supported
+  number — still an open decision, not yet changed in the app
 - Dependant pricing model (free vs. per-dependant add-on) — open decision

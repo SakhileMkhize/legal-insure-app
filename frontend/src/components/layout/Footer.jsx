@@ -6,11 +6,11 @@ import Stack from "@mui/material/Stack";
 import IconButton from "@mui/material/IconButton";
 import Divider from "@mui/material/Divider";
 import { NavLink } from "react-router";
-import GavelIcon from "@mui/icons-material/Gavel";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import InstagramIcon from "@mui/icons-material/Instagram";
+import logoFull from "../../assets/legalinsure-logo.png";
 
 const COLUMNS = [
     {
@@ -59,16 +59,12 @@ export function Footer() {
                     }}
                 >
                     <Box sx={{ maxWidth: 320 }}>
-                        <Stack
-                            direction="row"
-                            spacing={1}
-                            sx={{ alignItems: "center", mb: 1.5 }}
-                        >
-                            <GavelIcon sx={{ color: "secondary.main" }} />
-                            <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                                LegalInsure
-                            </Typography>
-                        </Stack>
+                        <Box
+                            component="img"
+                            src={logoFull}
+                            alt="LegalInsure"
+                            sx={{ height: 28, mb: 1.5 }}
+                        />
                         <Typography
                             variant="body2"
                             sx={{ color: "rgba(255,255,255,0.75)" }}
