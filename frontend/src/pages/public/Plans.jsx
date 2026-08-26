@@ -51,7 +51,7 @@ export function Plans() {
                 </Typography>
             </Box>
 
-            {/* Full-size plan cards — selecting one sends the plan id
+            {/* Full-size plan cards - selecting one sends the plan id
                 along as a query param, picked up by SignupPlanSelection
                 to preselect it in the signup wizard. */}
             <Box
@@ -76,7 +76,7 @@ export function Plans() {
             <Typography variant="h4" align="center" sx={{ mb: 3 }}>
                 Frequently asked questions
             </Typography>
-            {/* Collapsible FAQ list — one Accordion per question, all
+            {/* Collapsible FAQ list - one Accordion per question, all
                 independently expandable. */}
             <Box sx={{ maxWidth: 760, mx: "auto" }}>
                 {FAQS.map((faq) => (

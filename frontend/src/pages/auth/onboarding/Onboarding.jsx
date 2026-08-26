@@ -5,7 +5,7 @@ import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Box from "@mui/material/Box";
 
-// Kept in the same order as the nested routes under /signup in App.jsx —
+// Kept in the same order as the nested routes under /signup in App.jsx -
 // index position doubles as the step number for the Stepper below.
 const STEP_PATHS = [
     "/signup/details",
@@ -17,7 +17,7 @@ const STEP_LABELS = ["Your Details", "Choose Plan", "Create Account", "Done"];
 
 // Layout route for the whole signup flow: renders the shared Stepper
 // header, then whichever step page matched via the nested <Outlet>. The
-// four step pages don't manage their own state — they all read and write
+// four step pages don't manage their own state - they all read and write
 // the same formData object here, passed down through the Outlet's
 // context and picked up on each page with useOutletContext.
 export function Onboarding() {

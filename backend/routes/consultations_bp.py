@@ -41,16 +41,14 @@ def book_consultation():
         )
     )
     if covers_category is None:
-        return {
-            "message": "That attorney doesn't cover the selected category"
-        }, 400
+        return {"message": "That attorney doesn't cover the selected category"}, 400
 
     consultation = Consultation(
         id=str(uuid.uuid4()),
         user_id=get_jwt_identity(),
         category_id=category,
         practitioner_id=practitioner_id,
-        # Denormalized for display convenience — set from the practitioner
+        # Denormalized for display convenience - set from the practitioner
         # record, never typed by the client.
         lawyer_name=practitioner.to_dict()["displayName"],
         scheduled_at=datetime.fromisoformat(data.get("scheduledAt")),

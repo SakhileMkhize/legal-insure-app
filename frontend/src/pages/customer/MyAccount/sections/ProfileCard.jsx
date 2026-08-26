@@ -24,7 +24,7 @@ export function ProfileCard({ currentUser, onLogout }) {
                             width: 56,
                             height: 56,
                             bgcolor: "secondary.main",
-                            color: "primary.main",
+                            color: "secondary.contrastText",
                             fontWeight: 700,
                         }}
                     >

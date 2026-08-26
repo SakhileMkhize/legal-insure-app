@@ -12,7 +12,7 @@ export const BENEFIT_ICONS = {
 };
 
 // Where the "More Info" dialog's call-to-action button should navigate,
-// per benefit — service benefits point at booking a consultation, the
+// per benefit - service benefits point at booking a consultation, the
 // two money-limited ones point at submitting a claim.
 export const BENEFIT_ACTIONS = {
     "will-estate": { label: "Book a Consultation", path: "/consultations" },

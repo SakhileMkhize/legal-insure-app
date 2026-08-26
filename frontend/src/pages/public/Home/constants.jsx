@@ -10,7 +10,7 @@ export const callRequestSchema = yup.object({
     phone: yup.string().trim().required("Phone number is required"),
 });
 
-// Static marketing content for the page's card grids — none of this is
+// Static marketing content for the page's card grids - none of this is
 // fetched, since it's the same for every visitor.
 export const VALUE_PROPS = [
     {

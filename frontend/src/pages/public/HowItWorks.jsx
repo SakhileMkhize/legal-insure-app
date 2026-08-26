@@ -11,13 +11,13 @@ import CardContent from "@mui/material/CardContent";
 import { COVER_CATEGORIES } from "../../data/coverCategories";
 import { CategoryIcon } from "../../components/common/CategoryIcon";
 
-// Illustrative journey stages — used purely for the Stepper display
+// Illustrative journey stages - used purely for the Stepper display
 // below, not tied to a real signed-in user's actual progress.
 const STEPS = [
     "Choose your plan",
     "Get AI guidance & documents",
-    "Consult a lawyer (Premium & Ultimate)",
-    "File a legal expense claim (Ultimate)",
+    "Consult a lawyer (if needed)",
+    "File a legal expense claim",
 ];
 
 export function HowItWorks() {
@@ -37,13 +37,13 @@ export function HowItWorks() {
                     color="text.secondary"
                     sx={{ maxWidth: 640, mx: "auto" }}
                 >
-                    From your first question to full legal representation ,
+                    From your first question to full legal representation,
                     here's how LegalInsure supports you at every stage of a
                     dispute.
                 </Typography>
             </Box>
 
-            {/* activeStep=-1 leaves every step unhighlighted — this is a
+            {/* activeStep=-1 leaves every step unhighlighted - this is a
                 static explainer, not a tracker of real progress. */}
             <Stepper activeStep={-1} alternativeLabel sx={{ mb: 8 }}>
                 {STEPS.map((label) => (

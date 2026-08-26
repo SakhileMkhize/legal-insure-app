@@ -12,7 +12,7 @@ export function SignupConfirmation() {
     const { formData } = useOutletContext();
     const navigate = useNavigate();
 
-    // Same guard as the earlier steps — nothing to confirm if the wizard
+    // Same guard as the earlier steps - nothing to confirm if the wizard
     // was never actually completed.
     useEffect(() => {
         if (!formData.email) {
@@ -21,7 +21,7 @@ export function SignupConfirmation() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Plan details for display only — the account and its policy record
+    // Plan details for display only - the account and its policy record
     // already exist server-side by the time this page renders.
     const plan = PLANS.find((p) => p.id === formData.planId);
 
@@ -56,7 +56,7 @@ export function SignupConfirmation() {
                             variant="subtitle2"
                             sx={{ fontWeight: 700 }}
                         >
-                            {plan.name} Plan , R{plan.monthlyPrice}/month
+                            {plan.name} Plan, R{plan.monthlyPrice}/month
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                             {plan.tagline}

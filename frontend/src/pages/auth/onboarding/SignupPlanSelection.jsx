@@ -18,7 +18,7 @@ export function SignupPlanSelection() {
     );
 
     // Guards against landing on this step directly (e.g. a bookmarked
-    // URL) without having filled in step 1 first — formData.email being
+    // URL) without having filled in step 1 first - formData.email being
     // empty means the wizard hasn't actually been started.
     useEffect(() => {
         if (!formData.email) {

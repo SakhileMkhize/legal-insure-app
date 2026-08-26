@@ -15,7 +15,30 @@ export function UpcomingConsultationCard({ upcomingConsultation, navigate }) {
                 </Typography>
                 {upcomingConsultation ? (
                     <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                fontWeight: 600,
+                                // Links through to the attorney's profile
+                                // when one is actually attached to this
+                                // booking, same as on the full Consultations
+                                // page - older bookings may only have the
+                                // plain lawyerName text.
+                                ...(upcomingConsultation.practitionerId && {
+                                    cursor: "pointer",
+                                    color: "secondary.dark",
+                                    "&:hover": { textDecoration: "underline" },
+                                }),
+                            }}
+                            onClick={
+                                upcomingConsultation.practitionerId
+                                    ? () =>
+                                        navigate(
+                                            `/partners/${upcomingConsultation.practitionerId}`,
+                                        )
+                                    : undefined
+                            }
+                        >
                             {upcomingConsultation.lawyerName}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">

@@ -29,7 +29,7 @@ def list_partners():
     category = request.args.get("category")
 
     # .is_(True) compiles to "IS 1" on MSSQL, which isn't valid T-SQL
-    # (IS only works with NULL) — use equality instead.
+    # (IS only works with NULL) - use equality instead.
     query = select(Practitioner).where(Practitioner.is_active == True)  # noqa: E712
     if category:
         query = query.where(

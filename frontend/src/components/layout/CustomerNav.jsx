@@ -122,7 +122,7 @@ export function CustomerNav() {
                     />
                 </Tabs>
 
-                {/* Not built yet — kept visible but inert rather than
+                {/* Not built yet - kept visible but inert rather than
                     hidden, so the affordance is there when it ships. */}
                 <IconButton aria-label="Notifications" disabled>
                     <NotificationsIcon />
@@ -137,7 +137,7 @@ export function CustomerNav() {
                             width: 34,
                             height: 34,
                             bgcolor: "secondary.main",
-                            color: "primary.main",
+                            color: "secondary.contrastText",
                             fontSize: "0.9rem",
                             fontWeight: 700,
                         }}

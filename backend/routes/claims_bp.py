@@ -112,12 +112,17 @@ def update_claim_status(claim_id):
     # Approving a claim draws down the policy's legal expense cover;
     # reversing an approval (e.g. correcting a mistaken decision) gives
     # it back. Gated on an actual status change so re-saving the same
-    # status twice can't double-count.
+    # status twice can't double-count. Only policies with an actual
+    # monetary cover limit (Ultimate) track this at all - Basic/Premium
+    # are service-only per the hybrid payout model (see business_model.md
+    # §3) and always carry cover_limit = 0, so a claim on one of those
+    # plans being approved must never inflate cover_used against a limit
+    # that doesn't exist.
     if new_status != previous_status and claim.amount_claimed:
         policy = db.session.scalar(
             select(Policy).where(Policy.user_id == claim.user_id)
         )
-        if policy is not None:
+        if policy is not None and policy.cover_limit and policy.cover_limit > 0:
             cover_used = policy.cover_used or 0
             if new_status == "approved" and previous_status != "approved":
                 policy.cover_used = cover_used + claim.amount_claimed

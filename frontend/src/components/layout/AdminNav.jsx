@@ -15,8 +15,11 @@ import PeopleIcon from "@mui/icons-material/People";
 import GavelOutlinedIcon from "@mui/icons-material/GavelOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { API_URL } from "../../../global";
-import logoMark from "../../assets/legalinsure-mark.png";
-import logoFull from "../../assets/legalinsure-logo.png";
+// White variants, not the blue brand color - this AppBar's background is
+// primary.main (dark gray), where blue-on-gray falls well short of
+// readable contrast.
+import logoMark from "../../assets/legalinsure-mark-white.png";
+import logoFull from "../../assets/legalinsure-logo-white.png";
 
 const NAV_PATHS = ["/admin", "/admin/clients", "/admin/claims"];
 
@@ -79,7 +82,7 @@ export function AdminNav() {
                     <Chip
                         label="Admin"
                         size="small"
-                        color="secondary"
+                        color="primary"
                         sx={{ fontWeight: 700 }}
                     />
                 </Box>
@@ -124,7 +127,7 @@ export function AdminNav() {
                             width: 34,
                             height: 34,
                             bgcolor: "secondary.main",
-                            color: "primary.main",
+                            color: "secondary.contrastText",
                             fontSize: "0.9rem",
                             fontWeight: 700,
                         }}

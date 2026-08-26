@@ -45,7 +45,7 @@ Develop a comprehensive web-based legal insurance management application that en
 - Provide login and logout functionality through secure authentication endpoints.
 - Provide password recovery using a time-limited reset token and a reset-password workflow.
 - Allow authenticated users to view and edit their profile information.
-- Support two roles — **Customer** and **Admin** — with role-based landing pages and navigation.
+- Support two roles - **Customer** and **Admin** - with role-based landing pages and navigation.
 
 ### 3.2. Policy & Cover Management
 
@@ -95,7 +95,7 @@ Develop a comprehensive web-based legal insurance management application that en
 
 ## 4. Technical Requirements
 
-### 4.1 Frontend — React
+### 4.1 Frontend - React
 
 - Build the user interface using React with reusable functional components and hooks.
 - Use React Router for client-side navigation and protected, role-based routes.
@@ -105,7 +105,7 @@ Develop a comprehensive web-based legal insurance management application that en
 - Organize code by feature or domain, such as auth, policies, dependants, claims, consultations, partners, FAQ, and contact.
 - Use environment variables for the API base URL; do not hard-code environment-specific URLs.
 
-### 4.2 Backend — Flask (Python)
+### 4.2 Backend - Flask (Python)
 
 - Expose versioned RESTful endpoints that exchange JSON with the React application.
 - Use Flask Blueprints to separate authentication, users, policies, dependants, claims, consultations, partners, FAQ, and contact modules.
@@ -116,7 +116,7 @@ Develop a comprehensive web-based legal insurance management application that en
 - Configure CORS only for approved frontend origins.
 - Use centralized exception handling, application logging, and configuration per environment.
 
-### 4.3 Database — Microsoft SQL Server
+### 4.3 Database - Microsoft SQL Server
 
 - Use Microsoft SQL Server as the relational database and connect through SQLAlchemy using a supported SQL Server driver.
 - Define normalized entities and relationships for Users, Policies, Dependants, PolicyDependants, Partners, Claims, ClaimDocuments, Consultations, FAQs, and ContactEnquiries.
@@ -173,7 +173,7 @@ Develop a comprehensive web-based legal insurance management application that en
 - Provide Microsoft SQL Server database setup, migration, and seed instructions.
 - Provide sample environment-variable files containing placeholders only, never real secrets.
 
-### 7.2 Cloud Deployment — TBD
+### 7.2 Cloud Deployment - TBD
 
 The cloud provider, hosting services, CI/CD platform, domain configuration, and managed SQL Server option will be finalized later. The application must remain deployment-ready by using environment-based configuration, production build commands, health checks, migrations, structured logs, and documented startup commands.
 

@@ -24,7 +24,7 @@ const personalDetailsSchema = yup.object({
 
 export function SignupPersonalDetails() {
     // formData/updateFormData come from the Onboarding layout route via
-    // Outlet context — this step reads its slice of the shared object and
+    // Outlet context - this step reads its slice of the shared object and
     // writes back into the same object, rather than owning its own state.
     const { formData, updateFormData } = useOutletContext();
     const navigate = useNavigate();
@@ -38,7 +38,7 @@ export function SignupPersonalDetails() {
         },
         validationSchema: personalDetailsSchema,
         onSubmit: (values) => {
-            // No API call here — these fields aren't submitted until the
+            // No API call here - these fields aren't submitted until the
             // final "Create Account" step, after a plan is chosen.
             updateFormData(values);
             navigate("/signup/plan");

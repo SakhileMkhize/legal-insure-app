@@ -131,11 +131,13 @@ export function Consultations() {
                         title="Upcoming"
                         consultations={upcoming}
                         emptyText="No upcoming consultations."
+                        navigate={navigate}
                     />
                     <ConsultationGroup
                         title="Past"
                         consultations={past}
                         emptyText="No past consultations yet."
+                        navigate={navigate}
                     />
                 </Box>
             )}

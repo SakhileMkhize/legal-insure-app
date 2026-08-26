@@ -10,7 +10,10 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import InstagramIcon from "@mui/icons-material/Instagram";
-import logoFull from "../../assets/legalinsure-logo.png";
+// White variant, not the blue brand color - the footer sits on a dark
+// primary.main background, where blue-on-gray falls well short of
+// readable contrast.
+import logoFull from "../../assets/legalinsure-logo-white.png";
 
 const COLUMNS = [
     {

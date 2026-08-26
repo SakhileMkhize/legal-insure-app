@@ -90,8 +90,8 @@ export function PartnerDetail() {
                             sx={{
                                 width: 72,
                                 height: 72,
-                                bgcolor: "secondary.light",
-                                color: "secondary.dark",
+                                bgcolor: "secondary.main",
+                                color: "secondary.contrastText",
                                 fontWeight: 700,
                                 fontSize: "1.5rem",
                             }}
@@ -173,7 +173,7 @@ export function PartnerDetail() {
                     </Stack>
 
                     {/* Firm details render only if the practitioner has
-                        one on record — the API always includes it today,
+                        one on record - the API always includes it today,
                         but the field is nullable. */}
                     {partner.firm && (
                         <>

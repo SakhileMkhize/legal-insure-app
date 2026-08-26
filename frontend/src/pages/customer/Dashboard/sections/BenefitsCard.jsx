@@ -43,8 +43,8 @@ export function BenefitsCard({ benefits, onSelectBenefit }) {
                                         width: 40,
                                         height: 40,
                                         borderRadius: 1.5,
-                                        bgcolor: "secondary.light",
-                                        color: "secondary.dark",
+                                        bgcolor: "secondary.main",
+                                        color: "secondary.contrastText",
                                         flexShrink: 0,
                                     }}
                                 >

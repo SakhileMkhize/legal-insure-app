@@ -25,7 +25,7 @@ export function AdminDashboard() {
     const [error, setError] = useState(null);
 
     // Metrics, all claims, and all clients are fetched together; only the
-    // first 5 of each list are kept for the "Recent" previews below —
+    // first 5 of each list are kept for the "Recent" previews below -
     // the full lists live on the dedicated Claims/Clients admin pages.
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -64,7 +64,7 @@ export function AdminDashboard() {
                 Business Overview
             </Typography>
 
-            {/* Business-wide metrics row — client count, active policies,
+            {/* Business-wide metrics row - client count, active policies,
                 pending claims, and MRR computed server-side. */}
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
                 <StatCard

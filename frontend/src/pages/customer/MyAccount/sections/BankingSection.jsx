@@ -31,7 +31,7 @@ export function BankingSection({ policy, onSaved, onError }) {
     });
     const [saving, setSaving] = useState(false);
 
-    // accountNumber always starts blank here — the API never returns the
+    // accountNumber always starts blank here - the API never returns the
     // real value (only a masked version), so there's nothing to seed it
     // with. Leaving it blank on save means "keep the existing account".
     const openDialog = () => {

@@ -15,7 +15,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { EMPLOYMENT_STATUSES, MARITAL_STATUSES, EMPTY_KIN } from "../constants";
 
 // Date of birth, ID/passport, address, employment/marital status, and a
-// next-of-kin list — everything else on My Account also lets people edit
+// next-of-kin list - everything else on My Account also lets people edit
 // these later, this step just collects them up front.
 export function AboutYouStep({ formData, updateFormData }) {
     const [newKin, setNewKin] = useState(EMPTY_KIN);

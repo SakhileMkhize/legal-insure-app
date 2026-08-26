@@ -12,7 +12,14 @@ import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Avatar from "@mui/material/Avatar";
+import Chip from "@mui/material/Chip";
+import Typography from "@mui/material/Typography";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { COVER_CATEGORIES } from "../../../../data/coverCategories";
+import { CATEGORY_MAP } from "../../../../utils/categoryMap";
 import { API_URL } from "../../../../../global";
 
 // Validation rules for the "Book a Consultation" form.
@@ -26,18 +33,32 @@ const consultationSchema = yup.object({
         .required("Let us know what you'd like to discuss"),
 });
 
-// Booking form: category first, then a dependent "Preferred Attorney"
-// dropdown scoped to that category. When arriving with an
+// Same helper as Partners.jsx/PartnerDetail.jsx (name -> two-letter avatar
+// initial); kept local rather than shared, since it's a one-liner.
+function initialsOf(name) {
+    return name
+        .split(" ")
+        .map((part) => part[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+}
+
+// Booking form: category first, then attorneys covering it are shown as
+// clickable cards rather than a text dropdown - picking a name off a plain
+// list of "Name — Firm" strings is exactly how someone books the wrong
+// attorney by mistake, so this puts a face-shaped card, firm, and
+// specializations in front of every choice instead. When arriving with an
 // initialPractitionerId (from a partner's profile page), that attorney's
-// own category is looked up and both fields are prefilled.
+// own category is looked up and both fields are prefilled, with their
+// card shown pre-selected.
 export function BookingDialog({ open, onClose, onBooked, initialPractitionerId }) {
     const [submitError, setSubmitError] = useState(null);
     const [practitioners, setPractitioners] = useState([]);
     const [practitionersLoading, setPractitionersLoading] = useState(false);
 
-    // Refetches the "Preferred Attorney" options whenever the selected
-    // category changes — only practitioners covering that category are
-    // offered, so the field is disabled until a category is picked.
+    // Refetches the attorney options whenever the selected category
+    // changes - only practitioners covering that category are offered.
     const loadPractitioners = (category) => {
         if (!category) {
             setPractitioners([]);
@@ -90,9 +111,8 @@ export function BookingDialog({ open, onClose, onBooked, initialPractitionerId }
         },
     });
 
-    // Looks up the preselected attorney's own category so the dropdown
-    // isn't left pointing at a practitioner that isn't in its (empty)
-    // option list, then prefills both fields.
+    // Looks up the preselected attorney's own category so the card list
+    // isn't left empty, then prefills both fields.
     useEffect(() => {
         if (!initialPractitionerId) return;
         const token = localStorage.getItem("token");
@@ -109,7 +129,7 @@ export function BookingDialog({ open, onClose, onBooked, initialPractitionerId }
                 }
                 formik.setFieldValue("practitionerId", partner.id);
             })
-            .catch(() => {});
+            .catch(() => { });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialPractitionerId]);
 
@@ -123,8 +143,15 @@ export function BookingDialog({ open, onClose, onBooked, initialPractitionerId }
         loadPractitioners(category);
     };
 
+    // Drives the submit button's label further down, so the very last
+    // thing a client sees before committing is the attorney's name, not
+    // just a generic "Book".
+    const selectedPractitioner = practitioners.find(
+        (practitioner) => practitioner.id === formik.values.practitionerId,
+    );
+
     return (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
             <DialogTitle>Book a Consultation</DialogTitle>
             <Box component="form" onSubmit={formik.handleSubmit} noValidate>
                 <DialogContent>
@@ -156,45 +183,145 @@ export function BookingDialog({ open, onClose, onBooked, initialPractitionerId }
                                 </MenuItem>
                             ))}
                         </TextField>
-                        <TextField
-                            select
-                            label="Preferred Attorney"
-                            name="practitionerId"
-                            value={formik.values.practitionerId}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            error={
-                                formik.touched.practitionerId &&
-                                Boolean(formik.errors.practitionerId)
-                            }
-                            // Falls back through: a validation error first,
-                            // then a category prompt, then a no-matches
-                            // notice — each only shown when it applies.
-                            helperText={
-                                (formik.touched.practitionerId &&
-                                    formik.errors.practitionerId) ||
-                                (!formik.values.category
-                                    ? "Choose a category first"
-                                    : practitioners.length === 0 &&
-                                        !practitionersLoading
-                                      ? "No attorneys cover this category yet"
-                                      : "")
-                            }
-                            disabled={
-                                !formik.values.category || practitionersLoading
-                            }
-                            fullWidth
-                        >
-                            {practitioners.map((practitioner) => (
-                                <MenuItem
-                                    key={practitioner.id}
-                                    value={practitioner.id}
-                                >
-                                    {practitioner.displayName} —{" "}
-                                    {practitioner.firm?.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
+
+                        <Box>
+                            <Typography variant="body2" sx={{ mb: 1 }}>
+                                Preferred Attorney
+                            </Typography>
+
+                            {!formik.values.category && (
+                                <Typography variant="body2" color="text.secondary">
+                                    Choose a category first.
+                                </Typography>
+                            )}
+                            {formik.values.category && practitionersLoading && (
+                                <Box sx={{ display: "flex", py: 2 }}>
+                                    <CircularProgress size={20} />
+                                </Box>
+                            )}
+                            {formik.values.category &&
+                                !practitionersLoading &&
+                                practitioners.length === 0 && (
+                                    <Alert severity="info" variant="outlined">
+                                        No attorneys cover this category yet.
+                                    </Alert>
+                                )}
+                            {formik.values.category &&
+                                !practitionersLoading &&
+                                practitioners.length > 0 && (
+                                    <Stack
+                                        spacing={1.5}
+                                        sx={{
+                                            maxHeight: 300,
+                                            overflowY: "auto",
+                                            pr: 0.5,
+                                        }}
+                                    >
+                                        {practitioners.map((practitioner) => {
+                                            const selected =
+                                                formik.values.practitionerId ===
+                                                practitioner.id;
+                                            return (
+                                                <Card
+                                                    key={practitioner.id}
+                                                    variant="outlined"
+                                                    onClick={() =>
+                                                        formik.setFieldValue(
+                                                            "practitionerId",
+                                                            practitioner.id,
+                                                        )
+                                                    }
+                                                    sx={{
+                                                        cursor: "pointer",
+                                                        borderColor: selected
+                                                            ? "secondary.main"
+                                                            : "divider",
+                                                        borderWidth: selected ? 2 : 1,
+                                                        "&:hover": {
+                                                            borderColor: "secondary.main",
+                                                        },
+                                                    }}
+                                                >
+                                                    <CardContent
+                                                        sx={{
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            gap: 1.5,
+                                                        }}
+                                                    >
+                                                        <Avatar
+                                                            sx={{
+                                                                bgcolor: "secondary.main",
+                                                                color: "secondary.contrastText",
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            {initialsOf(practitioner.name)}
+                                                        </Avatar>
+                                                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                                                            <Typography
+                                                                variant="body2"
+                                                                sx={{ fontWeight: 600 }}
+                                                                noWrap
+                                                            >
+                                                                {practitioner.displayName}
+                                                            </Typography>
+                                                            <Typography
+                                                                variant="caption"
+                                                                color="text.secondary"
+                                                                noWrap
+                                                            >
+                                                                {practitioner.firm?.name}
+                                                            </Typography>
+                                                            {/* Shown even though the list is
+                                                                already filtered to this
+                                                                category - attorneys covering
+                                                                more than one are otherwise
+                                                                indistinguishable at a glance. */}
+                                                            <Stack
+                                                                direction="row"
+                                                                spacing={0.5}
+                                                                sx={{ flexWrap: "wrap", gap: 0.5, mt: 0.5 }}
+                                                            >
+                                                                {practitioner.categories?.map(
+                                                                    (categoryId) => (
+                                                                        <Chip
+                                                                            key={categoryId}
+                                                                            size="small"
+                                                                            label={
+                                                                                CATEGORY_MAP[categoryId]
+                                                                                    ?.label ?? categoryId
+                                                                            }
+                                                                        />
+                                                                    ),
+                                                                )}
+                                                            </Stack>
+                                                        </Box>
+                                                        {selected && (
+                                                            <CheckCircleIcon
+                                                                color="secondary"
+                                                                fontSize="small"
+                                                            />
+                                                        )}
+                                                    </CardContent>
+                                                </Card>
+                                            );
+                                        })}
+                                    </Stack>
+                                )}
+
+                            {formik.touched.practitionerId &&
+                                formik.errors.practitionerId && (
+                                    <Typography
+                                        variant="caption"
+                                        color="error"
+                                        sx={{ display: "block", mt: 0.75 }}
+                                    >
+                                        {formik.errors.practitionerId}
+                                    </Typography>
+                                )}
+                        </Box>
+
                         <TextField
                             label="Preferred Date & Time"
                             name="scheduledAt"
@@ -240,7 +367,9 @@ export function BookingDialog({ open, onClose, onBooked, initialPractitionerId }
                             ) : null
                         }
                     >
-                        Book
+                        {selectedPractitioner
+                            ? `Book with ${selectedPractitioner.displayName}`
+                            : "Book"}
                     </Button>
                 </DialogActions>
             </Box>

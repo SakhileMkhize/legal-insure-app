@@ -1,4 +1,4 @@
--- LegalInsure — migration adding usage-tracked policy benefits (will &
+-- LegalInsure - migration adding usage-tracked policy benefits (will &
 -- estate documenting, traffic fine cover, pre-claim consultation, identity
 -- theft assistance) to an already-running database.
 --

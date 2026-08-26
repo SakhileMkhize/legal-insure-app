@@ -1,4 +1,4 @@
-// Labels for the Stepper header — array index doubles as the step number
+// Labels for the Stepper header - array index doubles as the step number
 // used throughout the wizard (formData step 0 = "About You", etc.).
 export const STEP_LABELS = [
     "About You",

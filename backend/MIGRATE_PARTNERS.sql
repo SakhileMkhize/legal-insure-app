@@ -1,10 +1,10 @@
--- LegalInsure — migration adding the law firm / practitioner panel to an
+-- LegalInsure - migration adding the law firm / practitioner panel to an
 -- already-running database (law_firms, practitioners, practitioner_categories,
 -- and consultations.practitioner_id).
 --
 
 -- ============================================================
--- New tables — law firms, practitioners, their specializations
+-- New tables - law firms, practitioners, their specializations
 -- ============================================================
 
 IF OBJECT_ID('law_firms', 'U') IS NULL
@@ -55,7 +55,7 @@ END
 GO
 
 -- ============================================================
--- consultations — link each booking to a real practitioner
+-- consultations - link each booking to a real practitioner
 -- ============================================================
 
 IF COL_LENGTH('consultations', 'practitioner_id') IS NULL
@@ -144,7 +144,7 @@ END
 GO
 
 -- Backfill the existing seeded consultations (k1-k4) so they point at a
--- real practitioner instead of just a free-text name. Idempotent — safe
+-- real practitioner instead of just a free-text name. Idempotent - safe
 -- to re-run.
 UPDATE consultations SET practitioner_id = 'pr1' WHERE id = 'k1';
 UPDATE consultations SET practitioner_id = 'pr3' WHERE id = 'k2';

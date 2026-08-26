@@ -17,7 +17,7 @@ export function StatCard({ icon, label, value, accent = "primary" }) {
                         borderRadius: "50%",
                         bgcolor:
                             accent === "secondary"
-                                ? "secondary.light"
+                                ? "secondary.main"
                                 : "primary.main",
                         color:
                             accent === "secondary"

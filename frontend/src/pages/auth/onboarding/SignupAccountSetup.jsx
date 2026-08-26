@@ -16,7 +16,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { API_URL } from "../../../../global";
 
 // oneOf([yup.ref("password")]) is how yup expresses "must equal another
-// field" — it re-evaluates whenever either field changes.
+// field" - it re-evaluates whenever either field changes.
 const accountSetupSchema = yup.object({
     password: yup
         .string()

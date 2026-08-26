@@ -40,7 +40,7 @@ export function ValueProps() {
                             <Avatar
                                 sx={{
                                     bgcolor: "primary.main",
-                                    color: "secondary.main",
+                                    color: "primary.contrastText",
                                     mx: "auto",
                                     mb: 1.5,
                                 }}

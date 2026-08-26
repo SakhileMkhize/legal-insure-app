@@ -15,6 +15,8 @@ import PeopleIcon from "@mui/icons-material/People";
 import GavelIcon from "@mui/icons-material/Gavel";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import ourStory1Img from "../../assets/our-story-1.jpg";
+import ourStory2Img from "../../assets/our-story-2.avif";
 import "../../App.css";
 
 // Static "what we stand for" cards.
@@ -46,56 +48,105 @@ export function About() {
 
     return (
         <Box>
-            <Box className="hero-band" sx={{ py: 8 }}>
+            <Box className="hero-band">
                 <Container maxWidth="lg">
-                    <Typography
-                        variant="h3"
-                        sx={{ fontSize: { xs: "2rem", md: "2.5rem" }, mb: 2 }}
-                    >
-                        Our mission
-                    </Typography>
-                    <Typography
-                        variant="h6"
+                    <Box
                         sx={{
-                            fontWeight: 400,
-                            maxWidth: 700,
-                            color: "rgba(255,255,255,0.85)",
+                            display: "flex",
+                            flexDirection: { xs: "column", md: "row" },
+                            alignItems: "center",
+                            gap: { xs: 4, md: 6 },
                         }}
                     >
-                        What medical aid did for healthcare, we're building for
-                        legal protection , affordable, everyday access to legal
-                        guidance and representation for every household.
-                    </Typography>
+                        <Box sx={{ flex: 1 }}>
+                            <Typography
+                                variant="h3"
+                                sx={{
+                                    fontSize: { xs: "2rem", md: "2.5rem" },
+                                    mb: 2,
+                                }}
+                            >
+                                Our mission
+                            </Typography>
+                            <Typography
+                                variant="h6"
+                                sx={{
+                                    fontWeight: 400,
+                                    maxWidth: 700,
+                                    color: "rgba(255,255,255,0.85)",
+                                }}
+                            >
+                                What medical aid did for healthcare, we're
+                                building for legal protection, affordable,
+                                everyday access to legal guidance and
+                                representation for every household.
+                            </Typography>
+                        </Box>
+                        <Box
+                            component="img"
+                            src={ourStory2Img}
+                            alt="LegalInsure advisor supporting a client"
+                            sx={{
+                                flex: 1,
+                                width: "100%",
+                                maxWidth: 480,
+                                display: "block",
+                            }}
+                        />
+                    </Box>
                 </Container>
             </Box>
 
-            <Container maxWidth="lg" sx={{ py: 8 }}>
-                <Typography variant="h4" sx={{ mb: 2 }}>
-                    Our story
-                </Typography>
-                <Typography
-                    variant="body1"
-                    color="text.secondary"
-                    sx={{ maxWidth: 800, mb: 2 }}
+            <Container maxWidth="lg">
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: { xs: "column", md: "row" },
+                        alignItems: "center",
+                        gap: { xs: 4, md: 6 },
+                    }}
                 >
-                    Most people don't need a lawyer every day , but when they
-                    do, they often don't know who to call, can't afford the
-                    fees, and act too late. LegalInsure was founded to close
-                    that gap: combining AI-driven legal guidance, ready-to-use
-                    legal documents, and a vetted network of attorneys into one
-                    affordable monthly plan.
-                </Typography>
-                <Typography
-                    variant="body1"
-                    color="text.secondary"
-                    sx={{ maxWidth: 800 }}
-                >
-                    We work alongside South Africa's existing legal and
-                    insurance ecosystem to make sure that when a dispute does
-                    arise , a labour issue, a consumer complaint, a property
-                    disagreement , our members have real support, not just a
-                    helpline number.
-                </Typography>
+                    <Box sx={{ flex: 1 }}>
+                        <Typography variant="h4" sx={{ mb: 2 }}>
+                            Our story
+                        </Typography>
+                        <Typography
+                            variant="body1"
+                            color="text.secondary"
+                            sx={{ maxWidth: 800, mb: 2 }}
+                        >
+                            Most people don't need a lawyer every day, but
+                            when they do, they often don't know who to call,
+                            can't afford the fees, and act too late.
+                            LegalInsure was founded to close that gap:
+                            combining AI-driven legal guidance, ready-to-use
+                            legal documents, and a vetted network of
+                            attorneys into one affordable monthly plan.
+                        </Typography>
+                        <Typography
+                            variant="body1"
+                            color="text.secondary"
+                            sx={{ maxWidth: 800 }}
+                        >
+                            We work alongside South Africa's existing legal
+                            and insurance ecosystem to make sure that when a
+                            dispute does arise, a labour issue, a consumer
+                            complaint, a property disagreement, our members
+                            have real support, not just a helpline number.
+                        </Typography>
+                    </Box>
+                    <Box
+                        component="img"
+                        src={ourStory1Img}
+                        alt="A gavel, law books, and handcuffs representing the range of matters LegalInsure covers"
+                        sx={{
+                            flex: 1,
+                            width: "100%",
+                            maxWidth: 480,
+                            display: "block",
+                        }}
+                    />
+                </Box>
             </Container>
 
             <Box
@@ -128,7 +179,7 @@ export function About() {
                                     <Avatar
                                         sx={{
                                             bgcolor: "primary.main",
-                                            color: "secondary.main",
+                                            color: "primary.contrastText",
                                             mx: "auto",
                                             mb: 1.5,
                                         }}
@@ -154,7 +205,7 @@ export function About() {
                 </Container>
             </Box>
 
-            {/* Marketing headline figures — hardcoded copy, not fetched
+            {/* Marketing headline figures - hardcoded copy, not fetched
                 from any real usage data. */}
             <Container maxWidth="lg" sx={{ py: 8 }}>
                 <Box
@@ -168,23 +219,23 @@ export function About() {
                     <StatCard
                         icon={<CalendarMonthIcon />}
                         label="Years protecting clients"
-                        value="8+"
+                        value="0+"
                     />
                     <StatCard
                         icon={<PeopleIcon />}
                         label="Clients protected"
-                        value="42,000+"
+                        value="5+"
                         accent="secondary"
                     />
                     <StatCard
                         icon={<GavelIcon />}
                         label="Claims resolved"
-                        value="9,600+"
+                        value="10+"
                     />
                     <StatCard
                         icon={<EventAvailableIcon />}
                         label="Attorneys in network"
-                        value="350+"
+                        value="5+"
                         accent="secondary"
                     />
                 </Box>

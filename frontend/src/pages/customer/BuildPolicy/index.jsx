@@ -51,7 +51,7 @@ export function BuildPolicy() {
     // (4) have nothing mandatory; step 3 additionally requires disclosure
     // details once a pre-existing dispute has been declared. Employment and
     // next of kin stay optional throughout, same as on the account page.
-    // Banking and legal history aren't collected here at all — those stay
+    // Banking and legal history aren't collected here at all - those stay
     // My Account-only, added after the policy is active.
     const stepValid = {
         0: Boolean(
@@ -67,7 +67,7 @@ export function BuildPolicy() {
         4: true,
     };
 
-    // Submits the whole wizard's worth of answers in one request — the
+    // Submits the whole wizard's worth of answers in one request - the
     // backend turns "pending" policy into "active" and applies everything
     // collected across all five steps at once.
     const handleConfirm = () => {
@@ -111,7 +111,7 @@ export function BuildPolicy() {
                 ))}
             </Stepper>
 
-            {/* Only the block matching the current step renders — the
+            {/* Only the block matching the current step renders - the
                 other four stay mounted-out entirely rather than hidden,
                 so formData is the single source of truth across steps. */}
             <Card variant="outlined">
@@ -149,7 +149,7 @@ export function BuildPolicy() {
                         />
                     )}
 
-                    {/* Back/Next navigation — "Next" is hidden on the last
+                    {/* Back/Next navigation - "Next" is hidden on the last
                         step, since Review has its own Confirm button, and
                         disabled elsewhere until stepValid[step] is met. */}
                     <Stack

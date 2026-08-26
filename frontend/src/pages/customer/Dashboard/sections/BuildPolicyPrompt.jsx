@@ -7,7 +7,7 @@ import PendingActionsIcon from "@mui/icons-material/PendingActions";
 
 // A brand-new signup has a policy but hasn't gone through underwriting yet,
 // so the full dashboard (claims, benefits, cover usage) wouldn't mean
-// anything — this short prompt to finish onboarding is shown instead.
+// anything - this short prompt to finish onboarding is shown instead.
 export function BuildPolicyPrompt({ firstName, planName, navigate }) {
     return (
         <Box>

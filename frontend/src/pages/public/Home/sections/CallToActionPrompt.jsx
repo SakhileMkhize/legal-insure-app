@@ -11,7 +11,7 @@ export function CallToActionPrompt({ onRequestCall }) {
             <Avatar
                 sx={{
                     bgcolor: "primary.main",
-                    color: "secondary.main",
+                    color: "primary.contrastText",
                     mx: "auto",
                     mb: 2,
                     width: 56,

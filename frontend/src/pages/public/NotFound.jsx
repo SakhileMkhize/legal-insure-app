@@ -6,7 +6,7 @@ import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 
-// Catch-all page for the path="*" route in App.jsx — matches any URL
+// Catch-all page for the path="*" route in App.jsx - matches any URL
 // that didn't hit one of the app's defined routes.
 export function NotFound() {
     const navigate = useNavigate();

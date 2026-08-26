@@ -35,7 +35,7 @@ export function Contact() {
     const [sent, setSent] = useState(false);
 
     // As with the Home page's call-request form, there's no backend
-    // endpoint behind this yet — submitting just shows a success banner
+    // endpoint behind this yet - submitting just shows a success banner
     // and clears the form locally.
     const formik = useFormik({
         initialValues: { name: "", email: "", subject: "", message: "" },
@@ -76,7 +76,7 @@ export function Contact() {
                                 sx={{ mb: 3 }}
                                 onClose={() => setSent(false)}
                             >
-                                Thanks for reaching out , we'll be in touch
+                                Thanks for reaching out, we'll be in touch
                                 shortly.
                             </Alert>
                         )}
@@ -220,7 +220,7 @@ export function Contact() {
                             </Stack>
                         </CardContent>
                     </Card>
-                    {/* Stands in for an embedded map — no map integration
+                    {/* Stands in for an embedded map - no map integration
                         wired up. */}
                     <Box
                         sx={{

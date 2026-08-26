@@ -26,7 +26,7 @@ export function Claims() {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [expandedId, setExpandedId] = useState(null);
     // Evidence documents already fetched for a given claim, keyed by
-    // claim id — loaded lazily, only once a row is expanded.
+    // claim id - loaded lazily, only once a row is expanded.
     const [documentsByClaim, setDocumentsByClaim] = useState({});
     const [documentsLoading, setDocumentsLoading] = useState({});
     const [uploadingId, setUploadingId] = useState(null);
@@ -54,7 +54,7 @@ export function Claims() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Fetches the evidence list for one claim — called the first time its
+    // Fetches the evidence list for one claim - called the first time its
     // row is expanded, not up front for every claim on the page.
     const loadClaimDocuments = (claimId) => {
         setDocumentsLoading((prev) => ({ ...prev, [claimId]: true }));
@@ -73,7 +73,7 @@ export function Claims() {
     };
 
     // Expanding a row also lazy-loads its evidence list, but only the
-    // first time — documentsByClaim already having it means a re-expand
+    // first time - documentsByClaim already having it means a re-expand
     // skips the fetch.
     const handleToggle = (claimId) => {
         const next = expandedId === claimId ? null : claimId;

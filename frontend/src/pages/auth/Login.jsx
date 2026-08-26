@@ -51,7 +51,7 @@ export function Login() {
                 )
                 .then((data) => {
                     // Auth state lives in localStorage, not a cookie or
-                    // context provider — every protected route reads it
+                    // context provider - every protected route reads it
                     // directly (see ProtectedRoute/RequireRole in App.jsx).
                     localStorage.setItem("token", data.token);
                     localStorage.setItem("userId", data.id);
@@ -84,7 +84,7 @@ export function Login() {
                     Log in to access your legal cover dashboard.
                 </Typography>
 
-                {/* Demo credentials shown directly on the login screen —
+                {/* Demo credentials shown directly on the login screen -
                     convenient for a capstone/demo build, would not belong
                     in a production login page. */}
                 <Alert severity="info" variant="outlined" sx={{ mb: 3 }}>

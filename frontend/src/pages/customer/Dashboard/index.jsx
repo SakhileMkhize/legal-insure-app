@@ -74,7 +74,7 @@ export function Dashboard() {
     }
 
     // Plan details (price, features) come from static mock data keyed by
-    // the plan id on the policy — the backend only stores the id.
+    // the plan id on the policy - the backend only stores the id.
     const plan = PLANS.find((p) => p.id === policy.planId);
 
     if (policy.status === "pending") {
@@ -97,8 +97,9 @@ export function Dashboard() {
     const openClaims = claims.filter(
         (claim) => claim.status === "pending" || claim.status === "in-review",
     ).length;
-    // Basic/Premium have no monetary cover limit at all, so the percentage
-    // would divide by zero — shown as a dash instead.
+    // Defensive fallback for a policy somehow carrying no cover limit at
+    // all, which would otherwise divide by zero - every plan tier has a
+    // real limit today, so this shouldn't normally trigger.
     const coverUsedLabel =
         policy.coverLimit > 0
             ? `${Math.round((policy.coverUsed / policy.coverLimit) * 100)}%`

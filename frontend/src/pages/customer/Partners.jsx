@@ -35,7 +35,7 @@ export function Partners() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Refetches whenever the specialization filter changes — an empty
+    // Refetches whenever the specialization filter changes - an empty
     // category means "all specializations", so no query string is sent.
     useEffect(() => {
         setLoading(true);
@@ -98,7 +98,7 @@ export function Partners() {
                         sx={{ mb: 3, color: "rgba(255,255,255,0.85)" }}
                     >
                         The law firms and practitioners LegalInsure works
-                        with — compare specializations before you book a
+                        with - compare specializations before you book a
                         consultation.
                     </Typography>
 
@@ -153,7 +153,7 @@ export function Partners() {
                 </Alert>
             )}
 
-            {/* Card grid, 1/2/3 columns depending on viewport width —
+            {/* Card grid, 1/2/3 columns depending on viewport width -
                 each card links through to that attorney's detail page. */}
             {!loading && !error && partners.length > 0 && (
                 <Box
@@ -191,8 +191,8 @@ export function Partners() {
                                 >
                                     <Avatar
                                         sx={{
-                                            bgcolor: "secondary.light",
-                                            color: "secondary.dark",
+                                            bgcolor: "secondary.main",
+                                            color: "secondary.contrastText",
                                             fontWeight: 700,
                                         }}
                                     >

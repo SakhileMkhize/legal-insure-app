@@ -1,5 +1,5 @@
 // Option lists for the select fields in the Employment and Banking
-// dialogs — kept as plain arrays rather than fetched, since they mirror
+// dialogs - kept as plain arrays rather than fetched, since they mirror
 // the fixed CHECK constraints on the backend.
 export const EMPLOYMENT_STATUSES = [
     { value: "employed", label: "Employed" },

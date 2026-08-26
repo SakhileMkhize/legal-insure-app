@@ -118,7 +118,7 @@ CREATE TABLE claims
 
 -- The panel of law firms and individual practitioners LegalInsure actually
 -- works with. Required by the spec as a first-class "Partners" entity and
--- never implemented — consultations used to store a free-text lawyer_name
+-- never implemented - consultations used to store a free-text lawyer_name
 -- with no real attorney behind it. This is also who claim/consultation
 -- money actually goes to, since it never reaches the client directly.
 CREATE TABLE law_firms
@@ -221,7 +221,7 @@ CREATE TABLE next_of_kin
 
 -- Catalog of tangible, usage-limited perks bundled into cover (distinct
 -- from plan_features, which is just marketing copy with no usage tracking).
--- Applies uniformly across plans for now — not gated by plan tier.
+-- Applies uniformly across plans for now - not gated by plan tier.
 CREATE TABLE benefits
 (
     id NVARCHAR(20) PRIMARY KEY,
@@ -251,8 +251,8 @@ CREATE TABLE policy_benefits
 INSERT INTO plans
     (id, name, monthly_price, tagline, consultations_included, cover_limit)
 VALUES
-    ('basic', 'Basic', 99, 'Everyday legal guidance, always on', 0, 0),
-    ('premium', 'Premium', 199, 'Real lawyer access when it matters', 2, 0),
+    ('basic', 'Basic', 99, 'Everyday legal guidance, always on', 0, 100000),
+    ('premium', 'Premium', 199, 'Real lawyer access when it matters', 2, 250000),
     ('ultimate', 'Ultimate', 399, 'Full legal expense cover and representation', -1, 500000);
 
 INSERT INTO plan_features
@@ -260,11 +260,13 @@ INSERT INTO plan_features
 VALUES
     ('basic', '24/7 AI legal guidance assistant', 1),
     ('basic', 'Legal document templates', 2),
-    ('basic', 'Email support within 24 hours', 3),
+    ('basic', 'Legal expense cover up to R100,000', 3),
+    ('basic', 'Email support within 24 hours', 4),
     ('premium', 'Everything in Basic', 1),
     ('premium', '2 lawyer consultations per month', 2),
     ('premium', 'Contract review by a qualified attorney', 3),
-    ('premium', 'Priority response within 4 hours', 4),
+    ('premium', 'Legal expense cover up to R250,000', 4),
+    ('premium', 'Priority response within 4 hours', 5),
     ('ultimate', 'Everything in Premium', 1),
     ('ultimate', 'Unlimited lawyer consultations', 2),
     ('ultimate', 'Legal expense cover up to R500,000', 3),
@@ -456,7 +458,7 @@ VALUES
     ('c6', 'u6', 'labour', 'Unpaid overtime claim', 'Employer has not paid overtime accrued over 6 months.', 22000, 'approved', '2026-02-14', '2026-02-20');
 
 -- ============================================================
--- Seed the panel — law firms, practitioners, and their specializations
+-- Seed the panel - law firms, practitioners, and their specializations
 -- ============================================================
 
 INSERT INTO law_firms
