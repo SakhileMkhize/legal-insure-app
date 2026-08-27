@@ -14,17 +14,25 @@ CREATE TABLE users
     email NVARCHAR(255) NOT NULL UNIQUE,
     password_hash NVARCHAR(255) NOT NULL,
     phone NVARCHAR(20) NOT NULL,
+    joined_at DATE NOT NULL DEFAULT CAST(GETDATE() AS DATE)
+);
+
+-- 1:1 with users - underwriting/personal-details profile, split out to keep
+-- the core identity table lean (see backend/models/user_profile.py).
+CREATE TABLE user_profiles
+(
+    user_id NVARCHAR(50) PRIMARY KEY,
     date_of_birth DATE NULL,
     id_number NVARCHAR(20) NULL,
     address NVARCHAR(255) NULL,
-    joined_at DATE NOT NULL DEFAULT CAST(GETDATE() AS DATE),
     -- Employment (needed to sensibly underwrite/verify Labour Dispute claims)
     employer_name NVARCHAR(150) NULL,
     occupation NVARCHAR(100) NULL,
     employment_status NVARCHAR(20) NULL
         CHECK (employment_status IN ('employed', 'self-employed', 'unemployed', 'retired', 'student')),
     marital_status NVARCHAR(20) NULL
-        CHECK (marital_status IN ('single', 'married', 'divorced', 'widowed'))
+        CHECK (marital_status IN ('single', 'married', 'divorced', 'widowed')),
+    CONSTRAINT FK_user_profiles_users FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE plans
@@ -65,21 +73,37 @@ CREATE TABLE policies
     cover_used DECIMAL(12, 2) NOT NULL DEFAULT 0,
     consultations_included INT NOT NULL DEFAULT 0,
     consultations_used INT NOT NULL DEFAULT 0,
+    CONSTRAINT FK_policies_users FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT FK_policies_plans FOREIGN KEY (plan_id) REFERENCES plans(id)
+);
+
+-- 1:1 with policies - underwriting disclosures/consent captured during
+-- Build Policy, split out from the operational policy record (see
+-- backend/models/policy_disclosure.py).
+CREATE TABLE policy_disclosures
+(
+    policy_id NVARCHAR(50) PRIMARY KEY,
     has_pre_existing_dispute BIT NOT NULL DEFAULT 0,
     pre_existing_dispute_details NVARCHAR(1000) NULL,
     personal_use_confirmed BIT NOT NULL DEFAULT 0,
     popia_consent BIT NOT NULL DEFAULT 0,
-    -- Premium collection details - how the business actually gets paid.
-    -- account_number is stored in full here but the API only ever returns
-    -- a masked version (see policies_bp.serialize_policy); there's no
-    -- endpoint that echoes the raw value back once it's set.
+    CONSTRAINT FK_policy_disclosures_policies FOREIGN KEY (policy_id) REFERENCES policies(id)
+);
+
+-- 1:1 with policies - premium collection details, split out as the most
+-- sensitive fields on the policy record (see backend/models/policy_banking.py).
+-- account_number is stored in full here but the API only ever returns
+-- a masked version (see policies_bp.serialize_policy); there's no
+-- endpoint that echoes the raw value back once it's set.
+CREATE TABLE policy_banking
+(
+    policy_id NVARCHAR(50) PRIMARY KEY,
     payment_method NVARCHAR(20) NULL CHECK (payment_method IN ('debit_order', 'eft', 'card')),
     bank_name NVARCHAR(100) NULL,
     account_holder NVARCHAR(150) NULL,
     account_number NVARCHAR(30) NULL,
     branch_code NVARCHAR(10) NULL,
-    CONSTRAINT FK_policies_users FOREIGN KEY (user_id) REFERENCES users(id),
-    CONSTRAINT FK_policies_plans FOREIGN KEY (plan_id) REFERENCES plans(id)
+    CONSTRAINT FK_policy_banking_policies FOREIGN KEY (policy_id) REFERENCES policies(id)
 );
 
 CREATE TABLE policy_cover_categories
@@ -289,38 +313,50 @@ VALUES
 -- ============================================================
 
 INSERT INTO users
-    (id, role, first_name, last_name, email, password_hash, phone, date_of_birth, id_number, address, joined_at)
+    (id, role, first_name, last_name, email, password_hash, phone, joined_at)
 VALUES
     ('u1', 'customer', 'Thandeka', 'Mokoena', 'thandeka@example.com',
         'scrypt:32768:8:1$ND4rUOUfOG5efmfz$98d0d0f9d4e8af61f5940861aaa7736de4861689e1d2788611e7fd6638a6e0a6f5f817dc58fde79ccf6d2c417e5bfe77996531a28457abe8c0f96d9a78e2dbb4',
-        '081 234 5678', '1990-04-22', '9004225800089', '12 Vilakazi Street, Soweto, Johannesburg', '2025-03-12'),
+        '081 234 5678', '2025-03-12'),
     ('u2', 'customer', 'Johan', 'van der Merwe', 'johan@example.com',
         'scrypt:32768:8:1$ND4rUOUfOG5efmfz$98d0d0f9d4e8af61f5940861aaa7736de4861689e1d2788611e7fd6638a6e0a6f5f817dc58fde79ccf6d2c417e5bfe77996531a28457abe8c0f96d9a78e2dbb4',
-        '082 345 6789', '1985-11-03', '8511035012088', '45 Kerk Street, Stellenbosch', '2025-05-02'),
+        '082 345 6789', '2025-05-02'),
     ('u3', 'customer', 'Naledi', 'Khumalo', 'naledi@example.com',
         'scrypt:32768:8:1$ND4rUOUfOG5efmfz$98d0d0f9d4e8af61f5940861aaa7736de4861689e1d2788611e7fd6638a6e0a6f5f817dc58fde79ccf6d2c417e5bfe77996531a28457abe8c0f96d9a78e2dbb4',
-        '083 456 7890', '1993-07-15', '9307155300085', '8 Long Street, Cape Town', '2025-06-18'),
+        '083 456 7890', '2025-06-18'),
     ('u4', 'customer', 'Sipho', 'Dube', 'sipho@example.com',
         'scrypt:32768:8:1$ND4rUOUfOG5efmfz$98d0d0f9d4e8af61f5940861aaa7736de4861689e1d2788611e7fd6638a6e0a6f5f817dc58fde79ccf6d2c417e5bfe77996531a28457abe8c0f96d9a78e2dbb4',
-        '084 567 8901', '1998-02-27', '9802275900082', '23 Florida Road, Durban', '2025-09-01'),
+        '084 567 8901', '2025-09-01'),
     ('u5', 'customer', 'Amanda', 'Botha', 'amanda@example.com',
         'scrypt:32768:8:1$ND4rUOUfOG5efmfz$98d0d0f9d4e8af61f5940861aaa7736de4861689e1d2788611e7fd6638a6e0a6f5f817dc58fde79ccf6d2c417e5bfe77996531a28457abe8c0f96d9a78e2dbb4',
-        '071 678 9012', '1988-09-10', '8809105800081', '5 Voortrekker Road, Bellville', '2025-11-20'),
+        '071 678 9012', '2025-11-20'),
     ('u6', 'customer', 'Kagiso', 'Sithole', 'kagiso@example.com',
         'scrypt:32768:8:1$ND4rUOUfOG5efmfz$98d0d0f9d4e8af61f5940861aaa7736de4861689e1d2788611e7fd6638a6e0a6f5f817dc58fde79ccf6d2c417e5bfe77996531a28457abe8c0f96d9a78e2dbb4',
-        '072 789 0123', '1991-12-05', '9112055400086', '17 Jan Smuts Avenue, Johannesburg', '2026-01-14'),
+        '072 789 0123', '2026-01-14'),
     ('admin1', 'admin', 'Lindiwe', 'Dlamini', 'admin@legalinsure.co.za',
         'scrypt:32768:8:1$M1lKvPP83FaPpzg9$1651dfcfa1cbf71cc75a5a85f30b7d347cbec50835dc900e99052c7755a589eb3720b18fa822b975ed648c4830e31e7a3642d293b70d5d8c6f18c473cdebf51b',
-        '010 555 0100', '1987-06-18', '8706185300084', '1 Sanlam Office Park, Bellville', '2024-01-01'),
+        '010 555 0100', '2024-01-01'),
     ('admin2', 'admin', 'Pieter', 'Nel', 'pieter.nel@legalinsure.co.za',
         'scrypt:32768:8:1$M1lKvPP83FaPpzg9$1651dfcfa1cbf71cc75a5a85f30b7d347cbec50835dc900e99052c7755a589eb3720b18fa822b975ed648c4830e31e7a3642d293b70d5d8c6f18c473cdebf51b',
-        '010 555 0101', '1990-01-30', '9001305100083', '1 Sanlam Office Park, Bellville', '2024-02-15');
+        '010 555 0101', '2024-02-15');
+
+INSERT INTO user_profiles
+    (user_id, date_of_birth, id_number, address)
+VALUES
+    ('u1', '1990-04-22', '9004225800089', '12 Vilakazi Street, Soweto, Johannesburg'),
+    ('u2', '1985-11-03', '8511035012088', '45 Kerk Street, Stellenbosch'),
+    ('u3', '1993-07-15', '9307155300085', '8 Long Street, Cape Town'),
+    ('u4', '1998-02-27', '9802275900082', '23 Florida Road, Durban'),
+    ('u5', '1988-09-10', '8809105800081', '5 Voortrekker Road, Bellville'),
+    ('u6', '1991-12-05', '9112055400086', '17 Jan Smuts Avenue, Johannesburg'),
+    ('admin1', '1987-06-18', '8706185300084', '1 Sanlam Office Park, Bellville'),
+    ('admin2', '1990-01-30', '9001305100083', '1 Sanlam Office Park, Bellville');
 
 -- A few demo accounts filled in with employment/marital details, to prove
 -- the columns out - not every seeded user needs one for the demo to work.
-UPDATE users SET employer_name = 'Metro Retail Group', occupation = 'Store Manager', employment_status = 'employed', marital_status = 'married' WHERE id = 'u1';
-UPDATE users SET employer_name = 'Self-employed - Van der Merwe Consulting', occupation = 'Business Consultant', employment_status = 'self-employed', marital_status = 'married' WHERE id = 'u2';
-UPDATE users SET employer_name = 'Western Cape Health Dept', occupation = 'Registered Nurse', employment_status = 'employed', marital_status = 'single' WHERE id = 'u3';
+UPDATE user_profiles SET employer_name = 'Metro Retail Group', occupation = 'Store Manager', employment_status = 'employed', marital_status = 'married' WHERE user_id = 'u1';
+UPDATE user_profiles SET employer_name = 'Self-employed - Van der Merwe Consulting', occupation = 'Business Consultant', employment_status = 'self-employed', marital_status = 'married' WHERE user_id = 'u2';
+UPDATE user_profiles SET employer_name = 'Western Cape Health Dept', occupation = 'Registered Nurse', employment_status = 'employed', marital_status = 'single' WHERE user_id = 'u3';
 
 -- ============================================================
 -- Seed policies (all pre-existing demo accounts are already "active" -
@@ -328,21 +364,34 @@ UPDATE users SET employer_name = 'Western Cape Health Dept', occupation = 'Regis
 -- ============================================================
 
 INSERT INTO policies
-    (id, user_id, plan_id, status, start_date, monthly_premium, cover_limit, cover_used, consultations_included, consultations_used, has_pre_existing_dispute, personal_use_confirmed, popia_consent)
+    (id, user_id, plan_id, status, start_date, monthly_premium, cover_limit, cover_used, consultations_included, consultations_used)
 VALUES
-    ('p1', 'u1', 'premium', 'active', '2025-03-12', 199, 0, 0, 2, 1, 0, 1, 1),
-    ('p2', 'u2', 'basic', 'active', '2025-05-02', 99, 0, 0, 0, 0, 0, 1, 1),
-    ('p3', 'u3', 'ultimate', 'active', '2025-06-18', 399, 500000, 45000, -1, 4, 0, 1, 1),
-    ('p4', 'u4', 'basic', 'active', '2025-09-01', 99, 0, 0, 0, 0, 0, 1, 1),
-    ('p5', 'u5', 'premium', 'active', '2025-11-20', 199, 0, 0, 2, 0, 0, 1, 1),
-    ('p6', 'u6', 'ultimate', 'active', '2026-01-14', 399, 500000, 120000, -1, 2, 0, 1, 1);
+    ('p1', 'u1', 'premium', 'active', '2025-03-12', 199, 0, 0, 2, 1),
+    ('p2', 'u2', 'basic', 'active', '2025-05-02', 99, 0, 0, 0, 0),
+    ('p3', 'u3', 'ultimate', 'active', '2025-06-18', 399, 500000, 45000, -1, 4),
+    ('p4', 'u4', 'basic', 'active', '2025-09-01', 99, 0, 0, 0, 0),
+    ('p5', 'u5', 'premium', 'active', '2025-11-20', 199, 0, 0, 2, 0),
+    ('p6', 'u6', 'ultimate', 'active', '2026-01-14', 399, 500000, 120000, -1, 2);
+
+INSERT INTO policy_disclosures
+    (policy_id, has_pre_existing_dispute, personal_use_confirmed, popia_consent)
+VALUES
+    ('p1', 0, 1, 1),
+    ('p2', 0, 1, 1),
+    ('p3', 0, 1, 1),
+    ('p4', 0, 1, 1),
+    ('p5', 0, 1, 1),
+    ('p6', 0, 1, 1);
 
 -- Demo debit order details on a couple of policies, to prove the columns
 -- out. account_number is a genuine value here only because this is seed
 -- data for a local demo DB - the API never returns it in full (see
 -- policies_bp.serialize_policy, which only exposes accountNumberMasked).
-UPDATE policies SET payment_method = 'debit_order', bank_name = 'Standard Bank', account_holder = 'Thandeka Mokoena', account_number = '0123456789', branch_code = '051001' WHERE id = 'p1';
-UPDATE policies SET payment_method = 'debit_order', bank_name = 'Capitec Bank', account_holder = 'Naledi Khumalo', account_number = '9988776655', branch_code = '470010' WHERE id = 'p3';
+INSERT INTO policy_banking
+    (policy_id, payment_method, bank_name, account_holder, account_number, branch_code)
+VALUES
+    ('p1', 'debit_order', 'Standard Bank', 'Thandeka Mokoena', '0123456789', '051001'),
+    ('p3', 'debit_order', 'Capitec Bank', 'Naledi Khumalo', '9988776655', '470010');
 
 -- ============================================================
 -- Seed benefits catalog + demo usage per policy

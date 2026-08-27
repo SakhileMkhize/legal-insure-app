@@ -1,8 +1,10 @@
 from flask import Blueprint, request
 from extensions import db
 from models.user import User
+from models.user_profile import UserProfile
 from models.plan import Plan
 from models.policy import Policy
+from models.policy_disclosure import PolicyDisclosure
 from models.legal_history_entry import LegalHistoryEntry
 from models.next_of_kin import NextOfKin
 from sqlalchemy import select, desc
@@ -15,6 +17,14 @@ users_bp = Blueprint("users_bp", __name__)
 
 EMPLOYMENT_STATUSES = {"employed", "self-employed", "unemployed", "retired", "student"}
 MARITAL_STATUSES = {"single", "married", "divorced", "widowed"}
+
+
+# User's profile fields (see models/user_profile.py) live in their own 1:1
+# table - this merges them back in so callers see the same flat shape the
+# API returned before that split.
+def serialize_user(user):
+    profile = db.session.get(UserProfile, user.id)
+    return {**user.to_dict(), **(profile.to_dict() if profile else UserProfile().to_dict())}
 
 
 # CREATE
@@ -44,6 +54,8 @@ def create_user():
         joined_at=joined_at,
     )
 
+    profile = UserProfile(user_id=user_id)
+
     # New policies start "pending" - nothing is covered until the client
     # (or our team) works through the underwriting questionnaire.
     policy = Policy(
@@ -57,22 +69,28 @@ def create_user():
         cover_used=0,
         consultations_included=plan.consultations_included,
         consultations_used=0,
-        has_pre_existing_dispute=False,
-        personal_use_confirmed=False,
-        popia_consent=False,
     )
 
     try:
         db.session.add(user)
+        db.session.add(profile)
         db.session.flush()  # user row must exist before policy references it
         db.session.add(policy)
+        db.session.add(
+            PolicyDisclosure(
+                policy_id=policy.id,
+                has_pre_existing_dispute=False,
+                personal_use_confirmed=False,
+                popia_consent=False,
+            )
+        )
         db.session.commit()
 
         token = create_access_token(
             identity=user.id, additional_claims={"role": user.role}
         )
 
-        return {**user.to_dict(), "token": token}, 201
+        return {**serialize_user(user), "token": token}, 201
 
     except Exception as error:
         db.session.rollback()
@@ -113,15 +131,23 @@ def get_current_user():
     if user is None:
         return {"message": "User not found"}, 404
 
-    return user.to_dict()
+    return serialize_user(user)
 
 
 @users_bp.patch("/me")
 @jwt_required()
 def update_current_user():
-    user = db.session.get(User, get_jwt_identity())
+    user_id = get_jwt_identity()
+    user = db.session.get(User, user_id)
     if user is None:
         return {"message": "User not found"}, 404
+
+    profile = db.session.get(UserProfile, user_id)
+    if profile is None:
+        # Older accounts created before the profile split may not have a
+        # row yet - create one on first write instead.
+        profile = UserProfile(user_id=user_id)
+        db.session.add(profile)
 
     data = request.get_json()
 
@@ -134,18 +160,18 @@ def update_current_user():
         return {"message": "Invalid marital status"}, 400
 
     if "employerName" in data:
-        user.employer_name = data.get("employerName")
+        profile.employer_name = data.get("employerName")
     if "occupation" in data:
-        user.occupation = data.get("occupation")
+        profile.occupation = data.get("occupation")
     if "employmentStatus" in data:
-        user.employment_status = employment_status
+        profile.employment_status = employment_status
     if "maritalStatus" in data:
-        user.marital_status = marital_status
+        profile.marital_status = marital_status
 
     try:
         db.session.commit()
 
-        return user.to_dict()
+        return serialize_user(user)
 
     except Exception as error:
         db.session.rollback()

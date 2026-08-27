@@ -2,11 +2,13 @@ from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from extensions import db
 from models.policy import Policy
+from models.policy_disclosure import PolicyDisclosure
+from models.policy_banking import PolicyBanking
 from models.policy_cover_category import PolicyCoverCategory
 from models.dependant import Dependant
 from models.benefit import Benefit
 from models.policy_benefit import PolicyBenefit
-from models.user import User
+from models.user_profile import UserProfile
 from models.next_of_kin import NextOfKin
 from models.legal_history_entry import LegalHistoryEntry
 from sqlalchemy import select
@@ -34,8 +36,17 @@ def serialize_policy(policy):
         select(Dependant).where(Dependant.policy_id == policy.id)
     ).all()
 
+    # Disclosures and banking (see models/policy_disclosure.py and
+    # models/policy_banking.py) live in their own 1:1 tables - merge them
+    # back in so callers see the same flat shape the API returned before
+    # that split.
+    disclosure = db.session.get(PolicyDisclosure, policy.id)
+    banking = db.session.get(PolicyBanking, policy.id)
+
     return {
         **policy.to_dict(),
+        **(disclosure.to_dict() if disclosure else PolicyDisclosure().to_dict()),
+        **(banking.to_dict() if banking else PolicyBanking().to_dict()),
         "categoriesCovered": list(categories),
         "dependants": [dependant.to_dict() for dependant in dependants],
     }
@@ -94,28 +105,35 @@ def update_banking_details():
     if policy is None:
         return {"message": "We couldn't find a policy for this account."}, 404
 
+    banking = db.session.get(PolicyBanking, policy.id)
+    if banking is None:
+        # Older policies created before the banking split may not have a
+        # row yet - create one on first write instead.
+        banking = PolicyBanking(policy_id=policy.id)
+        db.session.add(banking)
+
     data = request.get_json()
 
     payment_method = data.get("paymentMethod")
     if payment_method is not None and payment_method not in ALLOWED_PAYMENT_METHODS:
         return {"message": "Invalid payment method"}, 400
 
-    # The API never returns the real account number (see Policy.to_dict),
+    # The API never returns the real account number (see PolicyBanking.to_dict),
     # so there's nothing to "clear" - submitting a blank value just leaves
     # whatever's already on file untouched. Only a new non-empty value
     # replaces it.
     account_number = data.get("accountNumber")
 
     if "paymentMethod" in data:
-        policy.payment_method = payment_method
+        banking.payment_method = payment_method
     if "bankName" in data:
-        policy.bank_name = data.get("bankName")
+        banking.bank_name = data.get("bankName")
     if "accountHolder" in data:
-        policy.account_holder = data.get("accountHolder")
+        banking.account_holder = data.get("accountHolder")
     if account_number and account_number.strip():
-        policy.account_number = account_number.strip()
+        banking.account_number = account_number.strip()
     if "branchCode" in data:
-        policy.branch_code = data.get("branchCode")
+        banking.branch_code = data.get("branchCode")
 
     try:
         db.session.commit()
@@ -138,11 +156,16 @@ def build_policy():
     if policy is None:
         return {"message": "We couldn't find a policy for this account."}, 404
 
+    disclosure = db.session.get(PolicyDisclosure, policy.id)
+    if disclosure is None:
+        disclosure = PolicyDisclosure(policy_id=policy.id)
+        db.session.add(disclosure)
+
     policy.status = "active"
-    policy.has_pre_existing_dispute = data.get("hasPreExistingDispute") == "yes"
-    policy.pre_existing_dispute_details = data.get("preExistingDisputeDetails")
-    policy.personal_use_confirmed = bool(data.get("personalUseConfirmed"))
-    policy.popia_consent = bool(data.get("popiaConsent"))
+    disclosure.has_pre_existing_dispute = data.get("hasPreExistingDispute") == "yes"
+    disclosure.pre_existing_dispute_details = data.get("preExistingDisputeDetails")
+    disclosure.personal_use_confirmed = bool(data.get("personalUseConfirmed"))
+    disclosure.popia_consent = bool(data.get("popiaConsent"))
 
     # Banking is only touched when the wizard actually sent a payment
     # method - keeps this endpoint safe to call even if a client skips
@@ -151,18 +174,26 @@ def build_policy():
     if payment_method:
         if payment_method not in ALLOWED_PAYMENT_METHODS:
             return {"message": "Invalid payment method"}, 400
-        policy.payment_method = payment_method
-        policy.bank_name = data.get("bankName")
-        policy.account_holder = data.get("accountHolder")
-        policy.branch_code = data.get("branchCode")
+        banking = db.session.get(PolicyBanking, policy.id)
+        if banking is None:
+            banking = PolicyBanking(policy_id=policy.id)
+            db.session.add(banking)
+        banking.payment_method = payment_method
+        banking.bank_name = data.get("bankName")
+        banking.account_holder = data.get("accountHolder")
+        banking.branch_code = data.get("branchCode")
         account_number = data.get("accountNumber")
         if account_number and account_number.strip():
-            policy.account_number = account_number.strip()
+            banking.account_number = account_number.strip()
 
-    user = db.session.get(User, user_id)
-    user.date_of_birth = parse_date(data.get("dateOfBirth"))
-    user.id_number = data.get("idNumber")
-    user.address = data.get("address")
+    profile = db.session.get(UserProfile, user_id)
+    if profile is None:
+        profile = UserProfile(user_id=user_id)
+        db.session.add(profile)
+
+    profile.date_of_birth = parse_date(data.get("dateOfBirth"))
+    profile.id_number = data.get("idNumber")
+    profile.address = data.get("address")
 
     employment_status = data.get("employmentStatus")
     if employment_status and employment_status not in EMPLOYMENT_STATUSES:
@@ -172,13 +203,13 @@ def build_policy():
         return {"message": "Invalid marital status"}, 400
 
     if "employerName" in data:
-        user.employer_name = data.get("employerName")
+        profile.employer_name = data.get("employerName")
     if "occupation" in data:
-        user.occupation = data.get("occupation")
+        profile.occupation = data.get("occupation")
     if employment_status:
-        user.employment_status = employment_status
+        profile.employment_status = employment_status
     if marital_status:
-        user.marital_status = marital_status
+        profile.marital_status = marital_status
 
     for category in db.session.scalars(
         select(PolicyCoverCategory).where(PolicyCoverCategory.policy_id == policy.id)
