@@ -30,15 +30,15 @@ export function SignupConfirmation() {
             <CardContent sx={{ p: 4, textAlign: "center" }}>
                 <CheckCircleIcon color="success" sx={{ fontSize: 56, mb: 2 }} />
                 <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
-                    You're covered, {formData.firstName}!
+                    Thanks, {formData.firstName}!
                 </Typography>
                 <Typography
                     variant="body2"
                     color="text.secondary"
                     sx={{ mb: 3 }}
                 >
-                    Your account has been created and your {plan?.name} plan is
-                    now active.
+                    Your account has been created and your {plan?.name} can be activated immediately.
+                    You can now access your dashboard to manage your policy and account settings.
                 </Typography>
 
                 {plan && (
